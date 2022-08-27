@@ -44,6 +44,20 @@ local noNeedModel = STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED
 local setPedCombatAttr = PED.SET_PED_COMBAT_ATTRIBUTES
 local giveWeaponToPed = WEAPON.GIVE_WEAPON_TO_PED
 
+local modded_vehicles = {
+    "dune2",
+    "tractor",
+    "dilettante2",
+    "asea2",
+    "cutter",
+    "mesa2",
+    "jet",
+    "skylift",
+    "policeold1",
+    "policeold2",
+    "armytrailer2",
+}
+
 -- entity-pool gathering handling
 vehicle_uses = 0
 ped_uses = 0
@@ -92,11 +106,14 @@ local menuroot = menu.my_root()
 -- check online version
 online_v = tonumber(NETWORK._GET_ONLINE_VERSION())
 if online_v > ocoded_for then
-    util.toast("Dieses Skript ist veraltet für die aktuelle GTA:O Version (" .. online_v .. ", Entwickelt für: " .. ocoded_for .. "). Einige Optionen funktionieren vielleicht nicht, aber die meisten sollten es.")
+    util.toast("Dieses Skript ist nicht für die aktuelle GTA:O Version (" .. online_v .. "gemacht, Entwickelt für: " .. ocoded_for .. "). Einige Optionen funktionieren vielleicht nicht, aber die meisten sollten es.")
 end
 
 --Menü Divider
 menu.divider(menu.my_root(), "Athego's Script [DEV]")
+local self = menu.list(menu.my_root(), "Self", {}, "")
+local vehicle = menu.list(menu.my_root(), "Vehicle", {}, "")
+local detections = menu.list(menu.my_root(), "Modder Detections", {}, "")
 
 ---------------------
 ---------------------
@@ -152,6 +169,18 @@ players.on_join(PlayerlistFeatures)
 -- MENÜ Features
 ---------------------
 ---------------------
+
+menu.toggle_loop(detections, "Modded Vehicle", {}, "", function()
+    for _, pid in ipairs(player.list(false, true, true)) do
+        local modelHash = players.get_vehicle_model(pid)
+        for i , name in ipairs(modded_vehicles) do
+            if modelHash == util.joaat(name) then
+                util.toast(players.get_name(pid) .. " fährt ein gemoddetes Fahrzeug")
+                break
+            end
+        end
+    end
+end)
 
 ---------------------
 ---------------------
