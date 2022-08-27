@@ -3,7 +3,7 @@ require("natives-1640181023")
 require("natives-1606100775")
 util.require_natives(1627063482)
 util.toast("Athego's Script erfolgreich geladen!")
-coded_for_gtao_version = 1.61
+ocoded_for = 1.61
 
 local response = false
 local localVer = 1.00
@@ -91,7 +91,7 @@ local menuroot = menu.my_root()
 
 -- check online version
 online_v = tonumber(NETWORK._GET_ONLINE_VERSION())
-if online_v > coded_for_gtao_version then
+if online_v > ocoded_for then
     util.toast("Dieses Skript ist veraltet für die aktuelle GTA:O Version (" .. online_v .. ", Entwickelt für: " .. ocoded_for .. "). Einige Optionen funktionieren vielleicht nicht, aber die meisten sollten es.")
 end
 
