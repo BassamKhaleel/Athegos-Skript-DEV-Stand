@@ -1,6 +1,7 @@
 require("natives-1640181023")
 require("natives-1606100775")
 util.require_natives(1627063482)
+util.require_natives(1660775568)
 util.toast("Athego's Script erfolgreich geladen! DEV-Version")
 ocoded_for = 1.61
 
@@ -10,7 +11,7 @@ if not filesystem.is_dir(store_dir) then
 end
 
 local response = false
-local localVer = 1.04
+local localVer = 1.05
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
