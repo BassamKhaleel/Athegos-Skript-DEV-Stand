@@ -6,7 +6,7 @@ util.toast("Athego's Script erfolgreich geladen! - DEV Version")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.14
+local localVer = 1.15
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -136,21 +136,6 @@ function PlayerlistFeatures(pid)
     menu.divider(friendly, "Athego's Script [DEV] - Friendly")
     local trollingOpt <const> = menu.list(menu.player_root(pid), "Trolling", {}, "") --Erstellt die Liste
 	menu.divider(trollingOpt, "Athego's Script [DEV] - Trolling") --Name der Liste
-
-    menu.toggle(trolling, pid, "Buggy Bewegungen", {}, "", function()
-        local player = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        local pos = ENTITY.GET_ENTITY_COORDS(player, false)
-        local glitch_hash = util.joaat("prop_shuttering03")
-        request_model(glitch_hash)
-        local dumb_object_front = entities.create_object(glitch_hash, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED(pid), 0, 1, 0))
-        local dumb_object_back = entities.create_object(glitch_hash, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED(pid), 0, 0, 0))
-        ENTITY.SET_ENTITY_VISIBLE(dumb_object_front, false)
-        ENTITY.SET_ENTITY_VISIBLE(dumb_object_back, false)
-        util.yield()
-        entities.delete_by_handle(dumb_object_front)
-        entities.delete_by_handle(dumb_object_back)
-        util.yield()    
-    end)
 
     local toggled = false    
     local animal_toggle
