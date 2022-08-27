@@ -6,7 +6,7 @@ util.toast("Athego's Script erfolgreich geladen! - DEV Version")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.15
+local localVer = 1.16
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -191,7 +191,7 @@ players.on_join(PlayerlistFeatures)
 ---------------------
 
 menu.toggle_loop(detections, "Modded Vehicle", {}, "", function()
-    for _, pid in ipairs(player.list(false, true, true)) do
+    for _, pid in ipairs(players.list(false, true, true)) do
         local modelHash = players.get_vehicle_model(pid)
         for i , name in ipairs(modded_vehicles) do
             if modelHash == util.joaat(name) then
