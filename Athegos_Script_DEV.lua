@@ -1,4 +1,3 @@
-util.keep_running()
 require("natives-1640181023")
 require("natives-1606100775")
 util.require_natives(1627063482)
@@ -474,3 +473,5 @@ self_thread = util.create_thread(function (thr2)
         util.yield()
     end
 end)
+
+util.keep_running()
