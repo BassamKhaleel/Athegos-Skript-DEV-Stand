@@ -6,7 +6,7 @@ util.toast("Athego's Script erfolgreich geladen! - DEV Version")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.09
+local localVer = 1.10
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -130,6 +130,25 @@ function PlayerlistFeatures(pid)
 	-- TROLLING
 	---------------------
 	---------------------
+
+    local friendly = menu.list(menu.player_root(pid), "Friendly", {}, "")
+    menu.divider(friendly, "Athego's Script [DEV] - Friendly")
+
+    local toggled = false    
+    local animal_toggle
+    animal_toggle = menu.toggle(friendly, "Zu Tief verwandeln", {}, "", function(toggle)
+        -- hi there, if you're gonna steal this then at least credit me
+        toggled = toggle
+        while toggled do
+            local player = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+            if not PED.IS_PED_MODEL(player, 0x9C9EFFD8) and not PED.IS_PED_MODEL(player, 0x705E61F2) then
+                util.toast("Spieler ist bereits ein Tier. :/")
+                menu.set_value(animal_toggle, false);
+            break end
+            util.trigger_script_event(1 << pid, {-1178972880, pid, 8, -1, 1, 1, 1})
+            util.yield()
+        end
+    end)
 
     local trollingOpt <const> = menu.list(menu.player_root(pid), "Trolling", {}, "") --Erstellt die Liste
 	menu.divider(trollingOpt, "Athego's Script [DEV] - Trolling") --Name der Liste
