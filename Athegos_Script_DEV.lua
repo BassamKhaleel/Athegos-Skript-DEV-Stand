@@ -1,12 +1,12 @@
+util.keep_running()
 require("natives-1640181023")
 require("natives-1606100775")
 util.require_natives(1627063482)
-util.require_natives(1660775568)
-util.toast("Athego's Script erfolgreich geladen! DEV-Version")
+util.toast("Athego's Script erfolgreich geladen! - DEV Version")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.07
+local localVer = 1.08
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -171,7 +171,7 @@ players.on_join(PlayerlistFeatures)
 ---------------------
 
 menu.toggle_loop(detections, "Modded Vehicle", {}, "", function()
-    for _, pid in ipairs(players.list(false, true, true)) do
+    for _, pid in ipairs(player.list(false, true, true)) do
         local modelHash = players.get_vehicle_model(pid)
         for i , name in ipairs(modded_vehicles) do
             if modelHash == util.joaat(name) then
@@ -202,6 +202,19 @@ end)
 -- Custom Loadout
 ---------------------
 ---------------------
+
+local STOREDIR = filesystem.store_dir() --- not using this much, consider moving it to the 2 locations it's used in..
+local LIBDIR = filesystem.scripts_dir() .. "lib\\"
+local do_autoload = false
+local attachments_table = {}
+local weapons_table = {}
+if filesystem.exists(LIBDIR .. "wpcmplabels.lua") and filesystem.exists(LIBDIR .. "Athego_weapons.lua") then
+    attachments_table = require("lib.wpcmplabels")
+    weapons_table = require("lib.Athego_weapons")
+else
+    --util.toast("You didn't install the resources properly. Make sure weapons.lua and wpcmplabels.lua are in the lib directory")
+    util.stop_script()
+end
 
 local customloadoutOpt <const> = menu.list(menuroot, "Custom Loadout", {}, "") --Erstellt die Liste
 	menu.divider(customloadoutOpt, "Athego's Script [DEV] - Custom Loadout") --Name der Liste
@@ -461,5 +474,3 @@ self_thread = util.create_thread(function (thr2)
         util.yield()
     end
 end)
-
-util.keep_running()
