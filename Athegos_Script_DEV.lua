@@ -1,7 +1,7 @@
 require("natives-1640181023")
 require("natives-1606100775")
 util.require_natives(1627063482)
-util.toast("Athego's Script erfolgreich geladen! DEV-Version")
+util.toast("Athego's Script erfolgreich geladen! DEV-Version - Test2")
 ocoded_for = 1.61
 
 local response = false
