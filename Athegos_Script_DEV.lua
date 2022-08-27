@@ -1,6 +1,6 @@
 util.keep_running()
 util.toast("Athego's Script erfolgreich geladen!")
-coded_for_gtao_version = 1.60
+coded_for_gtao_version = 1.61
 
 require("natives-1640181023")
 require("natives-1606100775")
