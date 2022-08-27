@@ -6,7 +6,7 @@ util.toast("Athego's Script erfolgreich geladen! - DEV Version")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.10
+local localVer = 1.11
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -112,7 +112,6 @@ end
 --Menü Divider
 menu.divider(menu.my_root(), "Athego's Script [DEV]")
 local self = menu.list(menu.my_root(), "Self", {}, "")
-local weapons = menu.list(meny.my_root(), "Weapons", {}, "")
 local vehicle = menu.list(menu.my_root(), "Vehicle", {}, "")
 local detections = menu.list(menu.my_root(), "Modder Detections", {}, "")
 
@@ -236,7 +235,7 @@ else
     util.stop_script()
 end
 
-local customloadoutOpt <const> = menu.list(weapons, "Custom Loadout", {}, "") --Erstellt die Liste
+local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
 	menu.divider(customloadoutOpt, "Athego's Script [DEV] - Custom Loadout") --Name der Liste
 
 save_loadout = menu.action(customloadoutOpt, "Loadout speichern", {}, "Speichert alle aktuell ausgerüsteten Waffen und Aufsätze um sie in Zukunft zu laden.",
