@@ -6,7 +6,7 @@ util.toast("Athego's Script erfolgreich geladen! - DEV Version")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.16
+local localVer = 1.2
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -44,6 +44,16 @@ local noNeedModel = STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED
 local setPedCombatAttr = PED.SET_PED_COMBAT_ATTRIBUTES
 local giveWeaponToPed = WEAPON.GIVE_WEAPON_TO_PED
 
+local unreleased_vehicles = {
+    "Kanjosj",
+    "Postlude",
+    "Rhinehart",
+    "Tenf",
+    "Tenf2",
+    "Sentinel4",
+    "Weevil2",
+}
+
 local modded_vehicles = {
     "dune2",
     "tractor",
@@ -56,6 +66,15 @@ local modded_vehicles = {
     "policeold1",
     "policeold2",
     "armytrailer2",
+    "towtruck",
+    "towtruck2",
+    "cargoplane",
+}
+
+local modded_weapons = {
+    "weapon_railgun",
+    "weapon_stungun",
+    "weapon_digiscanner",
 }
 
 -- entity-pool gathering handling
@@ -190,7 +209,7 @@ players.on_join(PlayerlistFeatures)
 ---------------------
 ---------------------
 
-menu.toggle_loop(detections, "Modded Vehicle", {}, "", function()
+menu.toggle_loop(detections, "Gemoddetes Fahrzeug", {}, "Erkennt ob jemand ein Gemoddetes Fahrzeug benutzt", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local modelHash = players.get_vehicle_model(pid)
         for i , name in ipairs(modded_vehicles) do
@@ -198,6 +217,43 @@ menu.toggle_loop(detections, "Modded Vehicle", {}, "", function()
                 util.toast(players.get_name(pid) .. " fährt ein gemoddetes Fahrzeug")
                 break
             end
+        end
+    end
+end)
+
+menu.toggle_loop(detections, "Nicht veröffentliches Fahrzeug", {}, "Erkennt ob jemand ein Fahrzeug benutzt welches noch nicht veröffentlicht wurde.", function()
+    for _, pid in ipairs(players.list(false, true, true)) do
+        local modelHash = players.get_vehicle_model(pid)
+        for i, name in ipairs(unreleased_vehicles) do
+            if modelHash == util.joaat(name) then
+                util.draw_debug_text(players.get_name(pid) .. " fährt ein unveröffentliches Fahrzeug")
+            end
+        end
+    end
+end)
+
+menu.toggle_loop(detections, "Gemoddete Waffe", {}, "Erkennt ob jemand eine Waffe benutzt die man Online nicht haben kann.", function()
+    for _, pid in ipairs(players.list(false, true, true)) do
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        for i, hash in ipairs(modded_weapons) do
+            local weapon_hash = util.joaat(hash)
+            if WEAPON.HAS_PED_GOT_WEAPON(ped, weapon_hash, false) and (WEAPON.IS_PED_ARMED(ped, 7) or TASK.GET_IS_TASK_ACTIVE(ped, 8) or TASK.GET_IS_TASK_ACTIVE(ped, 9)) then
+                util.toast(players.get_name(pid) .. " benutzt eine Gemoddete Waffe")
+                break
+            end
+        end
+    end
+end)
+
+menu.toggle_loop(detections, "Super Drive", {}, "Erkennt ob jemand Super Drive benutzt.", function()
+    for _, pid in ipairs(players.list(false, true, true)) do
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local vehicle = PED.GET_VEHICLE_PED_IS_USING(ped)
+        local veh_speed = (ENTITY.GET_ENTITY_SPEED(vehicle)* 2.236936)
+        local class = VEHICLE.GET_VEHICLE_CLASS(vehicle)
+        if class ~= 15 and class ~= 16 and veh_speed >= 180 and VEHICLE.GET_PED_IN_VEHICLE_SEAT(vehicle, -1) and players.get_vehicle_model(pid) ~= util.joaat("oppressor") then -- not checking opressor mk1 cus its stinky
+            util.toast(players.get_name(pid) .. " benutzt Super Drive")
+            break
         end
     end
 end)
