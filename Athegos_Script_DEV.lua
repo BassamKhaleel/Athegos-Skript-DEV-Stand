@@ -6,7 +6,7 @@ util.toast("Athego's Script erfolgreich geladen! DEV Version 1.3")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.3
+local localVer = 1.31
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -32,6 +32,13 @@ async_http.dispatch()
 repeat 
     util.yield()
 until response
+
+local function player_toggle_loop(root, pid, menu_name, command_names, help_text, callback)
+    return menu.toggle_loop(root, menu_name, command_names, help_text, function()
+        if not players.exists(pid) then util.stop_thread() end
+        callback()
+    end)
+end
 
 all_players = {}
 
@@ -358,7 +365,7 @@ local detections <const> = menu.list(menu.my_root(), "Modder Detections", {}, ""
 
 function PlayerlistFeatures(pid)
     menu.divider(menu.player_root(pid), "Athego's Script [DEV]")
-    local playerr = menu.list(menu.player_root(pid), "Jinx Script", {"JinxScript"}, "")
+    local playerr = menu.list(menu.player_root(pid), "Athego's Script [DEV]", {}, "")
 
     ---------------------
 	---------------------
