@@ -7,7 +7,7 @@ util.toast("Athego's Script erfolgreich geladen! DEV Version 1.56")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.56
+local localVer = 1.6
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -386,7 +386,7 @@ function PlayerlistFeatures(pid)
     local trollingOpt <const> = menu.list(playerr, "Trolling", {}, "") --Erstellt die Liste
 	menu.divider(trollingOpt, "Athego's Script [DEV] - Trolling") --Name der Liste
 
-    menu.action(trolling, "Launch Player", {"launch"}, "", function() 
+    menu.action(trollingOpt, "Launch Player", {"launch"}, "", function() 
         local stinky_butt = util.joaat("adder")
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local pos = ENTITY.GET_ENTITY_COORDS(ped)
