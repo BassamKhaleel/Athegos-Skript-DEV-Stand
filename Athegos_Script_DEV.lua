@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.4")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.55")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.5
+local localVer = 1.55
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -477,9 +477,43 @@ function PlayerlistFeatures(pid)
         end
     end)
 
-    local player_removals = menu.list(playerr, "Player Removals", {}, "")
+    local player_removals = menu.list(playerr, "Spieler entfernen", {}, "")
     local kicks = menu.list(player_removals, "Kicks", {}, "")
     local crashes = menu.list(player_removals, "Crashes", {}, "")
+
+    menu.action(kicks, "Freemode Death", {"freemodedeath"}, "Schickt ihn in den Story Mode.", function()
+        util.trigger_script_event(1 << pid, {111242367, pid, memory.script_global(2689235 + 1 + (pid * 453) + 318 + 7)})
+    end)
+
+    menu.action(kicks, "Network Bail", {"networkbail"}, "", function()
+        util.trigger_script_event(1 << pid, {0x63D4BFB1, players.user(), memory.read_int(memory.script_global(0x1CE15F + 1 + (pid * 0x257) + 0x1FE))})
+    end)
+
+    menu.action(kicks, "Invalid Collectible", {"invalidcollectible"}, "", function()
+        util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x4, -1, 1, 1, 1})
+    end)
+
+    if menu.get_edition() >= 2 then 
+        menu.action(kicks, "Adaptive Kick", {"adaptivekick"}, "", function()
+            util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x4, -1, 1, 1, 1})
+            util.trigger_script_event(1 << pid, {0x6A16C7F, pid, memory.script_global(0x2908D3 + 1 + (pid * 0x1C5) + 0x13E + 0x7)})
+            util.trigger_script_event(1 << pid, {0x63D4BFB1, players.user(), memory.read_int(memory.script_global(0x1CE15F + 1 + (pid * 0x257) + 0x1FE))})
+            menu.trigger_commands("breakdown" .. players.get_name(pid))
+        end)
+    else
+        menu.action(kicks, "Adaptive Kick", {"adaptivekick"}, "", function()
+            util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x4, -1, 1, 1, 1})
+            util.trigger_script_event(1 << pid, {0x6A16C7F, pid, memory.script_global(0x2908D3 + 1 + (pid * 0x1C5) + 0x13E + 0x7)})
+            util.trigger_script_event(1 << pid, {0x63D4BFB1, players.user(), memory.read_int(memory.script_global(0x1CE15F + 1 + (pid * 0x257) + 0x1FE))})
+        end)
+    end
+
+    if menu.get_edition() >= 2 then 
+        menu.action(kicks, "Block Join Kick", {"blast"}, "Fügt den Spieler zur Block Join list hinzu.", function()
+            menu.trigger_commands("historyblock " .. players.get_name(pid))
+            menu.trigger_commands("breakdown" .. players.get_name(pid))
+        end)
+    end
 
     menu.action(crashes, "Perle der Natur", {"nature"}, "", function()
         local user = players.user()
