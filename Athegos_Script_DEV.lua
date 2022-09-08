@@ -7,7 +7,7 @@ util.toast("Athego's Script erfolgreich geladen! DEV Version 1.5")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.35
+local localVer = 1.36
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -564,6 +564,63 @@ menu.toggle_loop(detections, "Noclip", {}, "Erkennt ob Spieler Noclip benutzten 
             break
         end
     end
+end)
+
+---------------------
+---------------------
+-- SELF/UNLOCKS
+---------------------
+---------------------
+
+local unlocks = menu.list(self, "Unlocks", {}, "")
+
+menu.action(unlocks, "Unlock M16", {""}, "", function()
+    memory.write_int(memory.script_global(262145 + 32775), 1)
+end)
+
+local collectibles = menu.list(unlocks, "Collectibles", {}, "")
+menu.click_slider(collectibles, "Movie Props", {""}, "", 0, 9, 0, 1, function(i)
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0x0, i, 1, 1, 1})
+end)
+
+menu.click_slider(collectibles, "Hidden Caches", {""}, "", 0, 9, 0, 1, function(i)
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0x1, i, 1, 1, 1})
+end)
+
+menu.click_slider(collectibles, "Treasure Chests", {""}, "", 0, 1, 0, 1, function(i)
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0x2, i, 1, 1, 1})
+end)
+
+menu.click_slider(collectibles, "Radio Antennas", {""}, "", 0, 9, 0, 1, function(i)
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0x3, i, 1, 1, 1})
+end)
+
+menu.click_slider(collectibles, "Media USBs", {""}, "", 0, 19, 0, 1, function(i)
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0x4, i, 1, 1, 1})
+end)
+
+menu.action(collectibles, "Shipwreck", {""}, "", function()
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0x5, 0, 1, 1, 1})
+end)
+
+menu.click_slider(collectibles, "Buried Stash", {""}, "", 0, 1, 0, 1, function(i)
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0x6, i, 1, 1, 1})
+end)
+
+menu.action(collectibles, "Halloween T-Shirt", {""}, "", function()
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0x7, 1, 1, 1, 1})
+end)
+
+menu.click_slider(collectibles, "Jack O' Lanterns", {""}, "", 0, 9, 0, 1, function(i)
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0x8, i, 1, 1, 1})
+end)
+
+menu.click_slider(collectibles, "Lamar Davis Organics Product", {""}, "", 0, 99, 0, 1, function(i)
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0x9, i, 1, 1, 1})
+end)
+
+menu.click_slider(collectibles, "Junk Energy Skydive", {""}, "", 0, 9, 0, 1, function(i)
+    util.trigger_script_event(1 << players.user(), {0xB9BA4D30, 0, 0xA, i, 1, 1, 1})
 end)
 
 ---------------------
