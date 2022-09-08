@@ -2,11 +2,11 @@ util.keep_running()
 require("natives-1640181023")
 require("natives-1606100775")
 util.require_natives(1627063482)
-util.toast("Athego's Script erfolgreich geladen! - DEV Version")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.25")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.2
+local localVer = 1.25
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -119,9 +119,6 @@ function mod_uses(type, incr)
     end
 end
 
---Ändert den Menü Pfad
-local menuroot = menu.my_root()
-
 -- check online version
 online_v = tonumber(NETWORK._GET_ONLINE_VERSION())
 if online_v > ocoded_for then
@@ -130,51 +127,42 @@ end
 
 --Menü Divider
 menu.divider(menu.my_root(), "Athego's Script [DEV]")
-local self = menu.list(menu.my_root(), "Self", {}, "")
+local self <const> = menu.list(menu.my_root(), "Self", {}, "")
+    menu.divider(self, "Athego's Script [DEV] - Self")
 local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
 	menu.divider(customloadoutOpt, "Athego's Script [DEV] - Custom Loadout") --Name der Liste
-local vehicle = menu.list(menu.my_root(), "Vehicle", {}, "")
-local detections = menu.list(menu.my_root(), "Modder Detections", {}, "")
+local vehicle <const> = menu.list(menu.my_root(), "Vehicle", {}, "")
+    menu.divider(vehicle, "Athego's Script [DEV] - Vehicle")
+local detections <const> = menu.list(menu.my_root(), "Modder Detections", {}, "")
+    menu.divider(detections, "Athego's Script [DEV] - Detections")
 
 ---------------------
 ---------------------
--- PLAYERS Features
+-- PLAYER Features
 ---------------------
 ---------------------
 
 function PlayerlistFeatures(pid)
     menu.divider(menu.player_root(pid), "Athego's Script [DEV]")
+    local playerr = menu.list(menu.player_root(pid), "Jinx Script", {"JinxScript"}, "")
 
     ---------------------
+	---------------------
+	-- FREUDNLICH
+	---------------------
+	---------------------
+
+    local friendly = menu.list(playerr, "Friendly", {}, "")
+    menu.divider(friendly, "Athego's Script [DEV] - Friendly")
+
+	---------------------
 	---------------------
 	-- TROLLING
 	---------------------
 	---------------------
 
-    local friendly = menu.list(menu.player_root(pid), "Friendly", {}, "")
-    menu.divider(friendly, "Athego's Script [DEV] - Friendly")
-    local trollingOpt <const> = menu.list(menu.player_root(pid), "Trolling", {}, "") --Erstellt die Liste
+    local trollingOpt <const> = menu.list(playerr, "Trolling", {}, "") --Erstellt die Liste
 	menu.divider(trollingOpt, "Athego's Script [DEV] - Trolling") --Name der Liste
-
-    local toggled = false    
-    local animal_toggle
-    animal_toggle = menu.toggle(friendly, "Zu Tier verwandeln", {}, "", function(toggle)
-        -- hi there, if you're gonna steal this then at least credit me
-        toggled = toggle
-        while toggled do
-            local player = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-            if not PED.IS_PED_MODEL(player, 0x9C9EFFD8) and not PED.IS_PED_MODEL(player, 0x705E61F2) then
-                util.toast("Spieler ist bereits ein Tier. :/")
-                menu.set_value(animal_toggle, false);
-            break end
-            util.trigger_script_event(1 << pid, {-1178972880, pid, 8, -1, 1, 1, 1})
-            util.yield()
-        end
-    end)
-
-	-------------------------------------
-	--Water Loop
-	-------------------------------------
 
     menu.toggle_loop(trollingOpt, "Water Loop", {}, "", function()
         local target_ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -192,6 +180,148 @@ function PlayerlistFeatures(pid)
         local target_ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local coords = ENTITY.GET_ENTITY_COORDS(target_ped)
         FIRE.ADD_EXPLOSION(coords['x'], coords['y'], coords['z'], math.random(0, 82), 1.0, true, false, 0.0)
+    end)
+
+    ---------------------
+	---------------------
+	-- TROLLING/GLITCH PLAYER
+	---------------------
+	---------------------
+
+    local glitch_player_list = menu.list(trollingOpt, "Glitch Player", {}, "")
+    local object_stuff = {
+        names = {
+            "Ferris Wheel",
+            "UFO",
+            "Cement Mixer",
+            "Scaffolding",
+            "Garage Door",
+            "Big Bowling Ball",
+            "Big Soccer Ball",
+            "Big Orange Ball",
+            "Stunt Ramp",
+
+        },
+        objects = {
+            "prop_ld_ferris_wheel",
+            "p_spinning_anus_s",
+            "prop_staticmixer_01",
+            "prop_towercrane_02a",
+            "des_scaffolding_root",
+            "prop_sm1_11_garaged",
+            "stt_prop_stunt_bowling_ball",
+            "stt_prop_stunt_soccer_ball",
+            "prop_juicestand",
+            "stt_prop_stunt_jump_l",
+        }
+    }
+
+    local object_hash = util.joaat("prop_ld_ferris_wheel")
+    menu.list_select(glitch_player_list, "Objekt", {"glitchplayer"}, "Wähle das Objekt welches genutzt werden soll.", object_stuff.names, 1, function(index)
+        object_hash = util.joaat(object_stuff.objects[index])
+    end)
+
+    menu.slider(glitch_player_list, "Spawn Delay", {"spawndelay"}, "", 0, 3000, 50, 10, function(amount)
+        delay = amount
+    end)
+
+    local glitchPlayer = false
+    local glitchPlayer_toggle
+    glitchPlayer_toggle = menu.toggle(glitch_player_list, "Glitch Player", {}, "", function(toggled)
+        glitchPlayer = toggled
+
+        while glitchPlayer do
+            if not players.exists(pid) then 
+                util.toast("Spieler existiert nicht!")
+                menu.set_value(glitchPlayer_toggle, false);
+            break end
+            local glitch_hash = object_hash
+            local poopy_butt = util.joaat("rallytruck")
+            request_model(glitch_hash)
+            request_model(poopy_butt)
+            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+            local playerpos = ENTITY.GET_ENTITY_COORDS(ped, false)
+            local stupid_object = entities.create_object(glitch_hash, playerpos)
+            local glitch_vehicle = entities.create_vehicle(poopy_butt, playerpos, 0)
+            ENTITY.SET_ENTITY_VISIBLE(stupid_object, false)
+            ENTITY.SET_ENTITY_VISIBLE(glitch_vehicle, false)
+            ENTITY.SET_ENTITY_INVINCIBLE(stupid_object, true)
+            ENTITY.SET_ENTITY_COLLISION(stupid_object, true, true)
+            ENTITY.APPLY_FORCE_TO_ENTITY(glitch_vehicle, 1, 0.0, 10, 10, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1)
+            util.yield(delay)
+            entities.delete_by_handle(stupid_object)
+            entities.delete_by_handle(glitch_vehicle)
+            util.yield(delay)    
+        end
+    end)
+
+    local glitchVeh = false
+    local glitchVehCmd
+    glitchVehCmd = menu.toggle(trolling, "Glitch Vehicle", {"glitchvehicle"}, "", function(toggle) -- credits to soul reaper for base concept
+        glitchVeh = toggle
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped, false)
+        local player_veh = PED.GET_VEHICLE_PED_IS_USING(ped)
+        local veh_model = players.get_vehicle_model(pid)
+        local ped_hash = util.joaat("a_m_m_acult_01")
+        local object_hash = util.joaat("prop_ld_ferris_wheel")
+        request_model(ped_hash)
+        request_model(object_hash)
+        
+        while glitchVeh do
+            if not players.exists(pid) then 
+                util.toast("Spieler existiert nicht!")
+                menu.set_value(glitchPlayer_toggle, false);
+            break end
+
+            if not PED.IS_PED_IN_VEHICLE(ped, player_veh, false) then 
+                util.toast("Spieler ist in keinem Fahrzeug!")
+                menu.set_value(glitchVehCmd, false);
+            break end
+
+            if not VEHICLE.ARE_ANY_VEHICLE_SEATS_FREE(player_veh) then
+                util.toast("Kein freier Sitzplatz!")
+                menu.set_value(glitchVehCmd, false);
+            break end
+
+            local seat_count = VEHICLE.GET_VEHICLE_MODEL_NUMBER_OF_SEATS(veh_model)
+            local glitch_obj = entities.create_object(object_hash, pos)
+            local glitched_ped = entities.create_ped(26, ped_hash, pos, 0)
+            local things = {glitched_ped, glitch_obj}
+
+            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(glitch_obj)
+            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(glitched_ped)
+
+            ENTITY.ATTACH_ENTITY_TO_ENTITY(glitch_obj, glitched_ped, 0, 0, 0, 0, 0, 0, 0, true, true, false, 0, true)
+
+            for i, spawned_objects in ipairs(things) do
+                NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(spawned_objects)
+                ENTITY.SET_ENTITY_VISIBLE(spawned_objects, false)
+                ENTITY.SET_ENTITY_INVINCIBLE(spawned_objects, true)
+            end
+
+            for i = 0, seat_count -1 do
+                if VEHICLE.ARE_ANY_VEHICLE_SEATS_FREE(player_veh) then
+                    local emptyseat = i
+                    for l = 1, 25 do
+                        PED.SET_PED_INTO_VEHICLE(glitched_ped, player_veh, emptyseat)
+                        ENTITY.SET_ENTITY_COLLISION(glitch_obj, true, true)
+                        util.yield()
+                    end
+                end
+            end
+            util.yield()
+            if not menu.get_value(glitchVehCmd) then
+                entities.delete_by_handle(glitched_ped)
+                entities.delete_by_handle(glitch_obj)
+            end
+            if glitched_ped ~= nil then -- added a 2nd stage here because it didnt want to delete sometimes, this solved that lol.
+                entities.delete_by_handle(glitched_ped) 
+            end
+            if glitch_obj ~= nil then 
+                entities.delete_by_handle(glitch_obj)
+            end
+        end
     end)
 
 end
