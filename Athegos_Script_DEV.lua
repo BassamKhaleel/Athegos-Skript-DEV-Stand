@@ -2,11 +2,11 @@ util.keep_running()
 require("natives-1640181023")
 require("natives-1606100775")
 util.require_natives(1627063482)
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.25")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.3")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.25
+local localVer = 1.3
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -44,6 +44,161 @@ local noNeedModel = STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED
 local setPedCombatAttr = PED.SET_PED_COMBAT_ATTRIBUTES
 local giveWeaponToPed = WEAPON.GIVE_WEAPON_TO_PED
 
+local function BlockSyncs(pid, callback)
+    for _, i in ipairs(players.list(false, true, true)) do
+        if i ~= pid then
+            local outSync = menu.ref_by_rel_path(menu.player_root(i), "Outgoing Syncs>Block")
+            menu.trigger_command(outSync, "on")
+        end
+    end
+    util.yield(10)
+    callback()
+    for _, i in ipairs(players.list(false, true, true)) do
+        if i ~= pid then
+            local outSync = menu.ref_by_rel_path(menu.player_root(i), "Outgoing Syncs>Block")
+            menu.trigger_command(outSync, "off")
+        end
+    end
+end
+
+
+local function get_blip_coords(blipId)
+    local blip = HUD.GET_FIRST_BLIP_INFO_ID(blipId)
+    if blip ~= 0 then return HUD.GET_BLIP_COORDS(blip) end
+    return v3(0, 0, 0)
+end
+
+local All_business_properties = {
+    -- Clubhouses
+    "1334 Roy Lowenstein Blvd",
+    "7 Del Perro Beach",
+    "75 Elgin Avenue",
+    "101 Route 68",
+    "1 Paleto Blvd",
+    "47 Algonquin Blvd",
+    "137 Capital Blvd",
+    "2214 Clinton Avenue",
+    "1778 Hawick Avenue",
+    "2111 East Joshua Road",
+    "68 Paleto Blvd",
+    "4 Goma Street",
+    -- Facilities
+    "Grand Senora Desert",
+    "Route 68",
+    "Sandy Shores",
+    "Mount Gordo",
+    "Paleto Bay",
+    "Lago Zancudo",
+    "Zancudo River",
+    "Ron Alternates Wind Farm",
+    "Land Act Reservoir",
+    -- Arcades
+    "Pixel Pete's - Paleto Bay",
+    "Wonderama - Grapeseed",
+    "Warehouse - Davis",
+    "Eight-Bit - Vinewood",
+    "Insert Coin - Rockford Hills",
+    "Videogeddon - La Mesa",
+}
+
+local small_warehouses = {
+    [1] = "Pacific Bait Storage", 
+    [2] = "White Widow Garage", 
+    [3] = "Celltowa Unit", 
+    [4] = "Convenience Store Lockup", 
+    [5] = "Foreclosed Garage", 
+    [9] = "Pier 400 Utility Building", 
+}
+
+local medium_warehouses = {
+    [7] = "Derriere Lingerie Backlot", 
+    [10] = "GEE Warehouse", 
+    [11] = "LS Marine Building 3", 
+    [12] = "Railyard Warehouse", 
+    [13] = "Fridgit Annexe",
+    [14] = "Disused Factory Outlet", 
+    [15] = "Discount Retail Unit", 
+    [21] = "Old Power Station", 
+}
+
+local large_warehouses = {
+    [6] = "Xero Gas Factory",  
+    [8] = "Bilgeco Warehouse", 
+    [16] = "Logistics Depot", 
+    [17] = "Darnell Bros Warehouse", 
+    [18] = "Wholesale Furniture", 
+    [19] = "Cypress Warehouses", 
+    [20] = "West Vinewood Backlot", 
+    [22] = "Walker & Sons Warehouse"
+}
+
+
+local weapon_stuff = {
+    {"Firework", "weapon_firework"}, 
+    {"Up N Atomizer", "weapon_raypistol"},
+    {"Unholy Hellbringer", "weapon_raycarbine"},
+    {"Rail Gun", "weapon_railgun"},
+    {"Red Laser", "vehicle_weapon_enemy_laser"},
+    {"Green Laser", "vehicle_weapon_player_laser"},
+    {"P-996 Lazer", "vehicle_weapon_player_lazer"},
+    {"RPG", "weapon_rpg"},
+    {"Homing Launcher", "weapon_hominglauncher"},
+    {"EMP Launcher", "weapon_emplauncher"},
+    {"Flare Gun", "weapon_flaregun"},
+    {"Shotgun", "weapon_bullpupshotgun"},
+    {"Stungun", "weapon_stungun"},
+    {"Smoke Gun", "weapon_smokegrenade"},
+}
+
+local proofs = {
+    bullet = {name="Bullets",on=false},
+    fire = {name="Fire",on=false},
+    explosion = {name="Explosions",on=false},
+    collision = {name="Collision",on=false},
+    melee = {name="Melee",on=false},
+    steam = {name="Steam",on=false},
+    drown = {name="Drowning",on=false},
+}
+
+local effect_stuff = {
+    {"Normal Drugged", "DrugsDrivingIn"}, 
+    {"Drugged Trevor", "DrugsTrevorClownsFight"},
+    {"Drugged Michael", "DrugsMichaelAliensFight"},
+    {"Chop", "ChopVision"},
+    {"Black & White", "DeathFailOut"},
+    {"Boosted Black & White", "HeistCelebPassBW"},
+    {"Rampage", "Rampage"},
+    {"Where Are My Glasses?", "MenuMGSelectionIn"},
+    {"Acid", "DMT_flight_intro"},
+}
+
+
+local visual_stuff = {
+    {"Better Illumination", "AmbientPush"},
+    {"Oversaturated", "rply_saturation"},
+    {"Boost Everything", "LostTimeFlash"},
+    {"Foggy Night", "casino_main_floor_heist"},
+    {"Better Night Time", "dlc_island_vault"},
+    {"Normal Fog", "Forest"},
+    {"Heavy Fog", "nervousRON_fog"},
+    {"Firewatch", "MP_Arena_theme_evening"},
+    {"Warm", "mp_bkr_int01_garage"},
+    {"Deepfried", "MP_deathfail_night"},
+    {"Stoned", "stoned"},
+    {"Underwater", "underwater"},
+}
+
+local drugged_effects = {
+    "DRUG_2_drive",
+    "drug_drive_blend01",
+    "drug_flying_base",
+    "DRUG_gas_huffin",
+    "drug_wobbly",
+    "NG_filmic02",
+    "PPFilter",
+    "spectator5",
+}
+
 local unreleased_vehicles = {
     "Kanjosj",
     "Postlude",
@@ -75,6 +230,65 @@ local modded_weapons = {
     "weapon_railgun",
     "weapon_stungun",
     "weapon_digiscanner",
+}
+
+local interiors = {
+    {"Safe Space [AFK Room]", {x=-158.71494, y=-982.75885, z=149.13135}},
+    {"Torture Room", {x=147.170, y=-2201.804, z=4.688}},
+    {"Mining Tunnels", {x=-595.48505, y=2086.4502, z=131.38136}},
+    {"Omegas Garage", {x=2330.2573, y=2572.3005, z=46.679367}},
+    {"Server Farm", {x=2155.077, y=2920.9417, z=-81.075455}},
+    {"Character Creation", {x=402.91586, y=-998.5701, z=-99.004074}},
+    {"Life Invader Building", {x=-1082.8595, y=-254.774, z=37.763317}},
+    {"Mission End Garage", {x=405.9228, y=-954.1149, z=-99.6627}},
+    {"Destroyed Hospital", {x=304.03894, y=-590.3037, z=43.291893}},
+    {"Stadium", {x=-256.92334, y=-2024.9717, z=30.145584}},
+    {"Comedy Club", {x=-430.00974, y=261.3437, z=83.00648}},
+    {"Bahama Mamas Nightclub", {x=-1394.8816, y=-599.7526, z=30.319544}},
+    {"Janitors House", {x=-110.20285, y=-8.6156025, z=70.51957}},
+    {"Therapists House", {x=-1913.8342, y=-574.5799, z=11.435149}},
+    {"Martin Madrazos House", {x=1395.2512, y=1141.6833, z=114.63437}},
+    {"Floyds Apartment", {x=-1156.5099, y=-1519.0894, z=10.632717}},
+    {"Michaels House", {x=-813.8814, y=179.07889, z=72.15914}},
+    {"Franklins House (Old)", {x=-14.239959, y=-1439.6913, z=31.101551}},
+    {"Franklins House (New)", {x=7.3125067, y=537.3615, z=176.02803}},
+    {"Trevors House", {x=1974.1617, y=3819.032, z=33.436287}},
+    {"Lesters House", {x=1273.898, y=-1719.304, z=54.771}},
+    {"Lesters Warehouse", {x=713.5684, y=-963.64795, z=30.39534}},
+    {"Lesters Office", {x=707.2138, y=-965.5549, z=30.412853}},
+    {"Meth Lab", {x=1391.773, y=3608.716, z=38.942}},
+    {"Humane Labs", {x=3625.743, y=3743.653, z=28.69009}},
+    {"Motel Room", {x=152.2605, y=-1004.471, z=-99.024}},
+    {"Police Station", {x=443.4068, y=-983.256, z=30.689589}},
+    {"Bank Vault", {x=263.39627, y=214.39891, z=101.68336}},
+    {"Blaine County Bank", {x=-109.77874, y=6464.8945, z=31.626724}}, -- credit to fluidware for telling me about this one
+    {"Tequi-La-La Bar", {x=-564.4645, y=275.5777, z=83.074585}},
+    {"Scrapyard Body Shop", {x=485.46396, y=-1315.0614, z=29.2141}},
+    {"The Lost MC Clubhouse", {x=980.8098, y=-101.96038, z=74.84504}},
+    {"Vangelico Jewlery Store", {x=-629.9367, y=-236.41296, z=38.057056}},
+    {"Airport Lounge", {x=-913.8656, y=-2527.106, z=36.331566}},
+    {"Morgue", {x=240.94368, y=-1379.0645, z=33.74177}},
+    {"Union Depository", {x=1.298771, y=-700.96967, z=16.131021}},
+    {"Fort Zancudo Tower", {x=-2357.9187, y=3249.689, z=101.45073}},
+    {"Agency Interior", {x=-1118.0181, y=-77.93254, z=-98.99977}},
+    {"Avenger Interior", {x=518.6444, y=4750.4644, z=-69.3235}},
+    {"Terrobyte Interior", {x=-1421.015, y=-3012.587, z=-80.000}},
+    {"Bunker Interior", {x=899.5518,y=-3246.038, z=-98.04907}},
+    {"IAA Office", {x=128.20, y=-617.39, z=206.04}},
+    {"FIB Top Floor", {x=135.94359, y=-749.4102, z=258.152}},
+    {"FIB Floor 47", {x=134.5835, y=-766.486, z=234.152}},
+    {"FIB Floor 49", {x=134.635, y=-765.831, z=242.152}},
+    {"Big Fat White Cock", {x=-31.007448, y=6317.047, z=40.04039}},
+    {"Marijuana Shop", {x=-1170.3048, y=-1570.8246, z=4.663622}},
+    {"Strip Club DJ Booth", {x=121.398254, y=-1281.0024, z=29.480522}},
+}
+
+local values = {
+    [0] = 0,
+    [1] = 50,
+    [2] = 88,
+    [3] = 160,
+    [4] = 208,
 }
 
 -- entity-pool gathering handling
@@ -383,6 +597,31 @@ menu.toggle_loop(detections, "Super Drive", {}, "Erkennt ob jemand Super Drive b
         local class = VEHICLE.GET_VEHICLE_CLASS(vehicle)
         if class ~= 15 and class ~= 16 and veh_speed >= 180 and VEHICLE.GET_PED_IN_VEHICLE_SEAT(vehicle, -1) and players.get_vehicle_model(pid) ~= util.joaat("oppressor") then -- not checking opressor mk1 cus its stinky
             util.toast(players.get_name(pid) .. " benutzt Super Drive")
+            break
+        end
+    end
+end)
+
+menu.toggle_loop(detections, "Noclip", {}, "Erkennt ob Spieler Noclip benutzten bzw Levitation", function()
+    for _, pid in ipairs(players.list(true, true, true)) do
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local ped_ptr = entities.handle_to_pointer(ped)
+        local vehicle = PED.GET_VEHICLE_PED_IS_USING(ped)
+        local oldpos = players.get_position(pid)
+        util.yield()
+        local currentpos = players.get_position(pid)
+        local vel = ENTITY.GET_ENTITY_VELOCITY(ped)
+        if not util.is_session_transition_active() and players.exists(pid)
+        and get_interior_player_is_in(pid) == 0 and get_transition_state(pid) ~= 0
+        and not PED.IS_PED_IN_ANY_VEHICLE(ped, false) -- too many false positives occured when players where driving. so fuck them. lol.
+        and not NETWORK.NETWORK_IS_PLAYER_FADING(pid) and ENTITY.IS_ENTITY_VISIBLE(ped) and not PED.IS_PED_DEAD_OR_DYING(ped)
+        and not PED.IS_PED_CLIMBING(ped) and not PED.IS_PED_VAULTING(ped) and not PED.IS_PED_USING_SCENARIO(ped)
+        and not TASK.GET_IS_TASK_ACTIVE(ped, 160) and not TASK.GET_IS_TASK_ACTIVE(ped, 2)
+        and v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_position(pid)) <= 395.0 -- 400 was causing false positives
+        and ENTITY.GET_ENTITY_HEIGHT_ABOVE_GROUND(ped) > 5.0 and not ENTITY.IS_ENTITY_IN_AIR(ped) and entities.player_info_get_game_state(ped_ptr) == 0
+        and oldpos.x ~= currentpos.x and oldpos.y ~= currentpos.y and oldpos.z ~= currentpos.z 
+        and vel.x == 0.0 and vel.y == 0.0 and vel.z == 0.0 then
+            util.toast(players.get_name(pid) .. " benutzt Noclip!")
             break
         end
     end
