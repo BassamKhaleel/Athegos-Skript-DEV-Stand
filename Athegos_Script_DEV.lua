@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.7")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.8")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.7
+local localVer = 1.8
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -34,13 +34,6 @@ repeat
     util.yield()
 until response
 
-local function player_toggle_loop(root, pid, menu_name, command_names, help_text, callback)
-    return menu.toggle_loop(root, menu_name, command_names, help_text, function()
-        if not players.exists(pid) then util.stop_thread() end
-        callback()
-    end)
-end
-
 all_players = {}
 
 local createPed = PED.CREATE_PED
@@ -51,6 +44,47 @@ local hasModelLoaded = STREAMING.HAS_MODEL_LOADED
 local noNeedModel = STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED
 local setPedCombatAttr = PED.SET_PED_COMBAT_ATTRIBUTES
 local giveWeaponToPed = WEAPON.GIVE_WEAPON_TO_PED
+
+local function player_toggle_loop(root, pid, menu_name, command_names, help_text, callback)
+    return menu.toggle_loop(root, menu_name, command_names, help_text, function()
+        if not players.exists(pid) then util.stop_thread() end
+        callback()
+    end)
+end
+
+local spawned_objects = {}
+
+local function get_transition_state(pid)
+    return memory.read_int(memory.script_global(((0x2908D3 + 1) + (pid * 0x1C5)) + 230))
+end
+
+local function get_interior_player_is_in(pid)
+    return memory.read_int(memory.script_global(((0x2908D3 + 1) + (pid * 0x1C5)) + 243)) 
+end
+
+local function is_player_in_interior(pid)
+    return (memory.read_int(memory.script_global(0x2908D3 + 1 + (pid * 0x1C5) + 243)) ~= 0)
+end
+
+local function get_entity_owner(addr)
+    if util.is_session_started() and not util.is_session_transition_active() then
+        local netObject = memory.read_long(addr + 0xD0)
+        if netObject == 0 then
+            return -1
+        end
+        local owner = memory.read_byte(netObject + 0x49)
+        return owner
+    end
+    return players.user()
+end
+
+local function setBit(addr, bitIndex)
+    memory.write_int(addr, memory.read_int(addr) | (1<<bitIndex))
+end
+
+local function clearBit(addr, bitIndex)
+    memory.write_int(addr, memory.read_int(addr) & ~(1<<bitIndex))
+end
 
 local function BlockSyncs(pid, callback)
     for _, i in ipairs(players.list(false, true, true)) do
@@ -68,7 +102,6 @@ local function BlockSyncs(pid, callback)
         end
     end
 end
-
 
 local function get_blip_coords(blipId)
     local blip = HUD.GET_FIRST_BLIP_INFO_ID(blipId)
@@ -370,7 +403,7 @@ local detections <const> = menu.list(menu.my_root(), "Modder Detections", {}, ""
 
 ---------------------
 ---------------------
--- PLAYER Features
+-- PLAYER FEATURES
 ---------------------
 ---------------------
 
@@ -380,11 +413,11 @@ function PlayerlistFeatures(pid)
 
     ---------------------
 	---------------------
-	-- FREUDNLICH
+	-- FRIENDLY
 	---------------------
 	---------------------
 
-    local friendly = menu.list(playerr, "Friendly", {}, "")
+    local friendly <const> = menu.list(playerr, "Friendly", {}, "")
     menu.divider(friendly, "Athego's Script [DEV] - Friendly")
 
 	---------------------
@@ -437,6 +470,8 @@ function PlayerlistFeatures(pid)
 	---------------------
 
     local glitch_player_list = menu.list(trollingOpt, "Glitch Player", {}, "")
+    menu.divider(glitch_player_list, "Athego's Script [DEV] - Glitch Player")
+
     local object_stuff = {
         names = {
             "Ferris Wheel",
@@ -503,9 +538,23 @@ function PlayerlistFeatures(pid)
         end
     end)
 
+    ---------------------
+	---------------------
+	-- PLAYER REMOVALS
+	---------------------
+	---------------------
+
     local player_removals = menu.list(playerr, "Spieler entfernen", {}, "")
+    menu.divider(player_removals, "Athego's Script [DEV] - Spieler entfernen")
+
+    ---------------------
+	---------------------
+	-- PLAYER REMOVALS/KICKS
+	---------------------
+	---------------------
+
     local kicks = menu.list(player_removals, "Kicks", {}, "")
-    local crashes = menu.list(player_removals, "Crashes", {}, "")
+    menu.divider(kicks, "Athego's Script [DEV] - Kicks")
 
     menu.action(kicks, "Freemode Death", {"freemodedeath"}, "Schickt ihn in den Story Mode.", function()
         util.trigger_script_event(1 << pid, {111242367, pid, memory.script_global(2689235 + 1 + (pid * 453) + 318 + 7)})
@@ -540,6 +589,15 @@ function PlayerlistFeatures(pid)
             menu.trigger_commands("breakdown" .. players.get_name(pid))
         end)
     end
+
+    ---------------------
+	---------------------
+	-- PLAYER REMOVALS/CRASHES
+	---------------------
+	---------------------
+
+    local crashes = menu.list(player_removals, "Crashes", {}, "")
+    menu.divider(crashes, "Athego's Script [DEV] - Crashes")
 
     menu.action(crashes, "Perle der Natur", {"nature"}, "", function()
         local user = players.user()
