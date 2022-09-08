@@ -2,11 +2,12 @@ util.keep_running()
 require("natives-1640181023")
 require("natives-1606100775")
 util.require_natives(1627063482)
+util.require_natives("natives-1660775568-uno")
 util.toast("Athego's Script erfolgreich geladen! DEV Version 1.3")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.31
+local localVer = 1.32
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
