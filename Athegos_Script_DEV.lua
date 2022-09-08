@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.56")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.7")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.6
+local localVer = 1.7
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -74,6 +74,16 @@ local function get_blip_coords(blipId)
     local blip = HUD.GET_FIRST_BLIP_INFO_ID(blipId)
     if blip ~= 0 then return HUD.GET_BLIP_COORDS(blip) end
     return v3(0, 0, 0)
+end
+
+local function request_model(hash, timeout)
+    timeout = timeout or 3
+    STREAMING.REQUEST_MODEL(hash)
+    local end_time = os.time() + timeout
+    repeat
+        util.yield()
+    until STREAMING.HAS_MODEL_LOADED(hash) or os.time() >= end_time
+    return STREAMING.HAS_MODEL_LOADED(hash)
 end
 
 local All_business_properties = {
