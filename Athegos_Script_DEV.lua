@@ -7,7 +7,7 @@ util.toast("Athego's Script erfolgreich geladen! DEV Version 1.3")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.32
+local localVer = 1.33
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -474,75 +474,6 @@ function PlayerlistFeatures(pid)
             entities.delete_by_handle(stupid_object)
             entities.delete_by_handle(glitch_vehicle)
             util.yield(delay)    
-        end
-    end)
-
-    local glitchVeh = false
-    local glitchVehCmd
-    glitchVehCmd = menu.toggle(trolling, "Glitch Vehicle", {"glitchvehicle"}, "", function(toggle) -- credits to soul reaper for base concept
-        glitchVeh = toggle
-        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        local pos = ENTITY.GET_ENTITY_COORDS(ped, false)
-        local player_veh = PED.GET_VEHICLE_PED_IS_USING(ped)
-        local veh_model = players.get_vehicle_model(pid)
-        local ped_hash = util.joaat("a_m_m_acult_01")
-        local object_hash = util.joaat("prop_ld_ferris_wheel")
-        request_model(ped_hash)
-        request_model(object_hash)
-        
-        while glitchVeh do
-            if not players.exists(pid) then 
-                util.toast("Spieler existiert nicht!")
-                menu.set_value(glitchPlayer_toggle, false);
-            break end
-
-            if not PED.IS_PED_IN_VEHICLE(ped, player_veh, false) then 
-                util.toast("Spieler ist in keinem Fahrzeug!")
-                menu.set_value(glitchVehCmd, false);
-            break end
-
-            if not VEHICLE.ARE_ANY_VEHICLE_SEATS_FREE(player_veh) then
-                util.toast("Kein freier Sitzplatz!")
-                menu.set_value(glitchVehCmd, false);
-            break end
-
-            local seat_count = VEHICLE.GET_VEHICLE_MODEL_NUMBER_OF_SEATS(veh_model)
-            local glitch_obj = entities.create_object(object_hash, pos)
-            local glitched_ped = entities.create_ped(26, ped_hash, pos, 0)
-            local things = {glitched_ped, glitch_obj}
-
-            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(glitch_obj)
-            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(glitched_ped)
-
-            ENTITY.ATTACH_ENTITY_TO_ENTITY(glitch_obj, glitched_ped, 0, 0, 0, 0, 0, 0, 0, true, true, false, 0, true)
-
-            for i, spawned_objects in ipairs(things) do
-                NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(spawned_objects)
-                ENTITY.SET_ENTITY_VISIBLE(spawned_objects, false)
-                ENTITY.SET_ENTITY_INVINCIBLE(spawned_objects, true)
-            end
-
-            for i = 0, seat_count -1 do
-                if VEHICLE.ARE_ANY_VEHICLE_SEATS_FREE(player_veh) then
-                    local emptyseat = i
-                    for l = 1, 25 do
-                        PED.SET_PED_INTO_VEHICLE(glitched_ped, player_veh, emptyseat)
-                        ENTITY.SET_ENTITY_COLLISION(glitch_obj, true, true)
-                        util.yield()
-                    end
-                end
-            end
-            util.yield()
-            if not menu.get_value(glitchVehCmd) then
-                entities.delete_by_handle(glitched_ped)
-                entities.delete_by_handle(glitch_obj)
-            end
-            if glitched_ped ~= nil then -- added a 2nd stage here because it didnt want to delete sometimes, this solved that lol.
-                entities.delete_by_handle(glitched_ped) 
-            end
-            if glitch_obj ~= nil then 
-                entities.delete_by_handle(glitch_obj)
-            end
         end
     end)
 
