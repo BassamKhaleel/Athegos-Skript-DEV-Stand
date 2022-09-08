@@ -3,11 +3,11 @@ require("natives-1640181023")
 require("natives-1606100775")
 util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.3")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.5")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.33
+local localVer = 1.35
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -572,7 +572,7 @@ end)
 ---------------------
 ---------------------
 
-local antioppOpt <const> = menu.list(menuroot, "Anti Oppressor", {}, "") --Erstellt die Liste
+local antioppOpt <const> = menu.list(menu.my_root(), "Anti Oppressor", {}, "") --Erstellt die Liste
 	menu.divider(antioppOpt, "Athego's Script [DEV] - Anti Oppressor") --Name der Liste
 
 antioppressor = false
