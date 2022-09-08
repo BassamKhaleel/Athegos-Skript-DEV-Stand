@@ -7,7 +7,7 @@ util.toast("Athego's Script erfolgreich geladen! DEV Version 1.55")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.55
+local localVer = 1.56
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -385,6 +385,22 @@ function PlayerlistFeatures(pid)
 
     local trollingOpt <const> = menu.list(playerr, "Trolling", {}, "") --Erstellt die Liste
 	menu.divider(trollingOpt, "Athego's Script [DEV] - Trolling") --Name der Liste
+
+    menu.action(trolling, "Launch Player", {"launch"}, "", function() 
+        local stinky_butt = util.joaat("adder")
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        pos.z -= 10
+        request_model(stinky_butt)
+        local stinky_vehicle = entities.create_vehicle(stinky_butt, pos, 0)
+        ENTITY.SET_ENTITY_VISIBLE(stinky_vehicle, false)
+        util.yield(250)
+        if stinky_vehicle ~= 0 then
+            ENTITY.APPLY_FORCE_TO_ENTITY(stinky_vehicle, 1, 0.0, 0.0, 120.0, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1)
+        end
+        util.yield(150)
+        entities.delete_by_handle(stinky_vehicle)
+    end)   
 
     menu.toggle_loop(trollingOpt, "Water Loop", {}, "", function()
         local target_ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
