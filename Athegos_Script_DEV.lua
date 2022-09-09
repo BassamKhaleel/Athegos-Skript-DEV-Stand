@@ -3,26 +3,26 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.8")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.9")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.8
+local localVer = 1.9
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
     if localVer ~= currentVer then
-        util.toast("Eine neue Version von Athego‘s Skript ist verfügbar, bitte Update das Skript")
+        util.toast("[Athego's Script] Eine neue Version von Athego‘s Skript ist verfügbar, bitte Update das Skript")
         menu.action(menu.my_root(), "Update Lua", {}, "", function()
             async_http.init('raw.githubusercontent.com','/BassamKhaleel/Athegos-Skript-DEV-Stand/main/Athegos_Script_DEV.lua',function(a)
                 local err = select(2,load(a))
                 if err then
-                    util.toast("Fehler beim Updaten des Skript‘s. Probiere es später erneut. Sollte der Fehler weiterhin auftreten Update das Skript Manuell über GitHub.")
+                    util.toast("[Athego's Script] Fehler beim Updaten des Skript‘s. Probiere es später erneut. Sollte der Fehler weiterhin auftreten Update das Skript Manuell über GitHub.")
                 return end
                 local f = io.open(filesystem.scripts_dir()..SCRIPT_RELPATH, "wb")
                 f:write(a)
                 f:close()
-                util.toast("Athego‘s Skript wurde erfolgreich Aktualisiert. Bitte starte das Skript neu :)")
+                util.toast("[Athego's Script] Athego‘s Skript wurde erfolgreich Aktualisiert. Bitte starte das Skript neu :)")
                 util.stop_script()
             end)
             async_http.dispatch()
@@ -387,7 +387,7 @@ end
 -- check online version
 online_v = tonumber(NETWORK._GET_ONLINE_VERSION())
 if online_v > ocoded_for then
-    util.toast("Dieses Skript ist nicht für die aktuelle GTA:O Version (" .. online_v .. "gemacht, Entwickelt für: " .. ocoded_for .. "). Einige Optionen funktionieren vielleicht nicht, aber die meisten sollten es.")
+    util.toast("[Athego's Script] Dieses Skript ist nicht für die aktuelle GTA:O Version (" .. online_v .. "gemacht, Entwickelt für: " .. ocoded_for .. "). Einige Optionen funktionieren vielleicht nicht, aber die meisten sollten es.")
 end
 
 --Menü Divider
@@ -419,6 +419,33 @@ function PlayerlistFeatures(pid)
 
     local friendly <const> = menu.list(playerr, "Friendly", {}, "")
     menu.divider(friendly, "Athego's Script [DEV] - Friendly")
+
+    menu.toggle_loop(friendly, "Unsichtbarer Vehicle Godmode", {}, "Wird von den meisten Menüs nicht als Vehicle Godmode erkannt.", function()
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        ENTITY.SET_ENTITY_PROOFS(PED.GET_VEHICLE_PED_IS_IN(ped), true, true, true, true, true, 0, 0, true)
+        end, function() ENTITY.SET_ENTITY_PROOFS(PED.GET_VEHICLE_PED_IS_IN(ped), false, false, false, false, false, 0, 0, false)
+    end)
+
+    menu.action(friendly, "Level ihn hoch", {}, "Gibt ihm ungefährt 175.000 RP. Gibt einem Level 1er circa 25 Level", function()
+        util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x5, 0, 1, 1, 1})
+        for i = 0, 9 do
+            util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x0, i, 1, 1, 1})
+            util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x1, i, 1, 1, 1})
+            util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x3, i, 1, 1, 1})
+            util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0xA, i, 1, 1, 1})
+        end
+        for i = 0, 1 do
+            util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x2, i, 1, 1, 1})
+            util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x6, i, 1, 1, 1})
+        end
+        for i = 0, 19 do
+            util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x4, i, 1, 1, 1})
+        end
+        for i = 0, 99 do
+            util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x9, i, 1, 1, 1})
+            util.yield()
+        end
+    end)
 
 	---------------------
 	---------------------
@@ -463,6 +490,43 @@ function PlayerlistFeatures(pid)
         FIRE.ADD_EXPLOSION(coords['x'], coords['y'], coords['z'], math.random(0, 82), 1.0, true, false, 0.0)
     end)
 
+    player_toggle_loop(trolling, pid, "Buggy bewegungen", {}, "", function()
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped, false)
+        local glitch_hash = util.joaat("prop_shuttering03")
+        request_model(glitch_hash)
+        local dumb_object_front = entities.create_object(glitch_hash, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED(pid), 0, 1, 0))
+        local dumb_object_back = entities.create_object(glitch_hash, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED(pid), 0, 0, 0))
+        ENTITY.SET_ENTITY_VISIBLE(dumb_object_front, false)
+        ENTITY.SET_ENTITY_VISIBLE(dumb_object_back, false)
+        util.yield()
+        entities.delete_by_handle(dumb_object_front)
+        entities.delete_by_handle(dumb_object_back)
+        util.yield()    
+    end)
+    
+    menu.action(trolling, "Aus Fahrzeug kicken", {}, "", function(toggled)
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        if PED.IS_PED_IN_ANY_VEHICLE(ped, false) then
+            player_veh = PED.GET_VEHICLE_PED_IS_USING(ped)
+            DECORATOR.DECOR_REGISTER("Player_Vehicle", 3)
+            DECORATOR.DECOR_SET_INT(player_veh,"Player_Vehicle", 0)
+        else
+            util.toast("Spieler ist in keinem Auto!")
+        end
+    end)
+
+    local freeze = menu.list(trolling, "Spieler einfrieren", {}, "")
+    player_toggle_loop(freeze, pid, "Hard Freeze", {}, "", function()
+        util.trigger_script_event(1 << pid, {0x4868BC31, pid, 0, 0, 0, 0, 0})
+        util.yield(500)
+    end)
+
+    player_toggle_loop(freeze, pid, "Flackerndes einfrieren", {}, "", function()
+        util.trigger_script_event(1 << pid, {0x7EFC3716, pid, 0, 1, 0, 0})
+        util.yield(500)
+    end)
+
     ---------------------
 	---------------------
 	-- TROLLING/GLITCH PLAYER
@@ -500,11 +564,11 @@ function PlayerlistFeatures(pid)
     }
 
     local object_hash = util.joaat("prop_ld_ferris_wheel")
-    menu.list_select(glitch_player_list, "Objekt", {"glitchplayer"}, "Wähle das Objekt welches genutzt werden soll.", object_stuff.names, 1, function(index)
+    menu.list_select(glitch_player_list, "Objekt [Glitch Player]", {}, "Wähle das Objekt welches genutzt werden soll.", object_stuff.names, 1, function(index)
         object_hash = util.joaat(object_stuff.objects[index])
     end)
 
-    menu.slider(glitch_player_list, "Spawn Delay", {"spawndelay"}, "", 0, 3000, 50, 10, function(amount)
+    menu.slider(glitch_player_list, "Spawn Delay [Glitch Player]", {}, "", 0, 3000, 50, 10, function(amount)
         delay = amount
     end)
 
@@ -515,7 +579,7 @@ function PlayerlistFeatures(pid)
 
         while glitchPlayer do
             if not players.exists(pid) then 
-                util.toast("Spieler existiert nicht!")
+                util.toast("[Athego's Script] Spieler existiert nicht!")
                 menu.set_value(glitchPlayer_toggle, false);
             break end
             local glitch_hash = object_hash
@@ -535,6 +599,106 @@ function PlayerlistFeatures(pid)
             entities.delete_by_handle(stupid_object)
             entities.delete_by_handle(glitch_vehicle)
             util.yield(delay)    
+        end
+    end)
+
+    local glitchVeh = false
+    local glitchVehCmd
+    glitchVehCmd = menu.toggle(glitch_player_list, "Glitch Vehicle", {}, "", function(toggle)
+        glitchVeh = toggle
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped, false)
+        local player_veh = PED.GET_VEHICLE_PED_IS_USING(ped)
+        local veh_model = players.get_vehicle_model(pid)
+        local ped_hash = util.joaat("a_m_m_acult_01")
+        local object_hash = util.joaat("prop_ld_ferris_wheel")
+        request_model(ped_hash)
+        request_model(object_hash)
+        
+        while glitchVeh do
+            if not players.exists(pid) then 
+                util.toast("[Athego's Script] Spieler existiert nicht!")
+                menu.set_value(glitchPlayer_toggle, false);
+            break end
+
+            if not PED.IS_PED_IN_VEHICLE(ped, player_veh, false) then 
+                util.toast("[Athego's Script] Spieler ist in keinem Fahrzeug!")
+                menu.set_value(glitchVehCmd, false);
+            break end
+
+            if not VEHICLE.ARE_ANY_VEHICLE_SEATS_FREE(player_veh) then
+                util.toast("[Athego's Script] Kein freier Sitz mehr Verfügbar!")
+                menu.set_value(glitchVehCmd, false);
+            break end
+
+            local seat_count = VEHICLE.GET_VEHICLE_MODEL_NUMBER_OF_SEATS(veh_model)
+            local glitch_obj = entities.create_object(object_hash, pos)
+            local glitched_ped = entities.create_ped(26, ped_hash, pos, 0)
+            local things = {glitched_ped, glitch_obj}
+
+            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(glitch_obj)
+            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(glitched_ped)
+
+            ENTITY.ATTACH_ENTITY_TO_ENTITY(glitch_obj, glitched_ped, 0, 0, 0, 0, 0, 0, 0, true, true, false, 0, true)
+
+            for i, spawned_objects in ipairs(things) do
+                NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(spawned_objects)
+                ENTITY.SET_ENTITY_VISIBLE(spawned_objects, false)
+                ENTITY.SET_ENTITY_INVINCIBLE(spawned_objects, true)
+            end
+
+            for i = 0, seat_count -1 do
+                if VEHICLE.ARE_ANY_VEHICLE_SEATS_FREE(player_veh) then
+                    local emptyseat = i
+                    for l = 1, 25 do
+                        PED.SET_PED_INTO_VEHICLE(glitched_ped, player_veh, emptyseat)
+                        ENTITY.SET_ENTITY_COLLISION(glitch_obj, true, true)
+                        util.yield()
+                    end
+                end
+            end
+            util.yield()
+            if not menu.get_value(glitchVehCmd) then
+                entities.delete_by_handle(glitched_ped)
+                entities.delete_by_handle(glitch_obj)
+            end
+            if glitched_ped ~= nil then -- added a 2nd stage here because it didnt want to delete sometimes, this solved that lol.
+                entities.delete_by_handle(glitched_ped) 
+            end
+            if glitch_obj ~= nil then 
+                entities.delete_by_handle(glitch_obj)
+            end
+        end
+    end)
+
+    local glitchForcefield = false
+    local glitchforcefield_toggle
+    glitchforcefield_toggle = menu.toggle(glitch_player_list, "Glitched Forcefield", {}, "", function(toggled)
+        glitchForcefield = toggled
+        local glitch_hash = util.joaat("p_spinning_anus_s")
+        request_model(glitch_hash)
+
+        while glitchForcefield do
+            if not players.exists(pid) then 
+                util.toast("[Athego's Script] Spieler existiert nicht!")
+                menu.set_value(glitchPlayer_toggle, false);
+            break end
+
+            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+            local playerpos = ENTITY.GET_ENTITY_COORDS(ped, false)
+            
+            if PED.IS_PED_IN_ANY_VEHICLE(ped, false) then
+                util.toast("[Athego's Script] Spieler ist in einem Auto!")
+                menu.set_value(glitchforcefield_toggle, false);
+            break end
+            
+            local stupid_object = entities.create_object(glitch_hash, playerpos)
+            ENTITY.SET_ENTITY_VISIBLE(stupid_object, false)
+            ENTITY.SET_ENTITY_INVINCIBLE(stupid_object, true)
+            ENTITY.SET_ENTITY_COLLISION(stupid_object, true, true)
+            util.yield()
+            entities.delete_by_handle(stupid_object)
+            util.yield()    
         end
     end)
 
@@ -666,7 +830,7 @@ function PlayerlistFeatures(pid)
                 entities.delete_by_handle(ped1)
                 util.yield(1000)
             else
-                util.toast("Fehler beim Laden des Models.")
+                util.toast("[Athego's Script] Fehler beim Laden des Models.")
             end
         end)
     end)
