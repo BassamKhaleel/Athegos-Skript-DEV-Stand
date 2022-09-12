@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.9")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.91")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.9
+local localVer = 1.91
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -66,17 +66,17 @@ local function is_player_in_interior(pid)
     return (memory.read_int(memory.script_global(0x2908D3 + 1 + (pid * 0x1C5) + 243)) ~= 0)
 end
 
-local function get_entity_owner(addr)
-    if util.is_session_started() and not util.is_session_transition_active() then
-        local netObject = memory.read_long(addr + 0xD0)
-        if netObject == 0 then
-            return -1
-        end
-        local owner = memory.read_byte(netObject + 0x49)
-        return owner
-    end
-    return players.user()
-end
+--local function get_entity_owner(addr)
+  --  if util.is_session_started() and not util.is_session_transition_active() then
+    --    local netObject = memory.read_long(addr + 0xD0)
+      --  if netObject == 0 then
+        --    return -1
+        --end
+        --local owner = memory.read_byte(netObject + 0x49)
+        --return owner
+    --end
+    --return players.user()
+--end
 
 local function setBit(addr, bitIndex)
     memory.write_int(addr, memory.read_int(addr) | (1<<bitIndex))
