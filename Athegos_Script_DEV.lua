@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.95")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.951")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.95
+local localVer = 1.951
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -1261,4 +1261,4 @@ self_thread = util.create_thread(function (thr2)
         end
     end
     util.yield()
-end
+end)
