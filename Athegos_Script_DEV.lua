@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.94")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.95")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.94
+local localVer = 1.95
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -1247,16 +1247,17 @@ players_thread = util.create_thread(function (thr)
     end
 end)
 
-while true do
-    if NETWORK.NETWORK_IS_IN_SESSION() == false then
-        while util.is_session_started() and not util.is_session_transition_active() do
-            util.yield(1000)
-        end
-        util.yield(10000) --- wait until even the clownish animation on spawn is definitely finished..
-        if do_autoload then
-            menu.trigger_commands("loadloadout")
-        else
-            regen_menu()
+self_thread = util.create_thread(function (thr2)
+    while true do
+        if customloadout then
+            if util.is_session_started() and not util.is_session_transition_active() then
+                util.yield(10000) --- wait until even the clownish animation on spawn is definitely finished..
+                if do_autoload then
+                    menu.trigger_command("loadloadout")
+                else
+                    regen_menu()
+                end
+            end
         end
     end
     util.yield()
