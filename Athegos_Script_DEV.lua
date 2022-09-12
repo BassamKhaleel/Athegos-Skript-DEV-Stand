@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.5")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.55")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.5
+local localVer = 1.55
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -1167,8 +1167,10 @@ function PlayerlistFeatures(pid)
 
     menu.toggle_loop(friendly, "Unsichtbarer Vehicle Godmode", {}, "Wird von den meisten Menüs nicht als Vehicle Godmode erkannt.", function()
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        ENTITY.SET_ENTITY_PROOFS(PED.GET_VEHICLE_PED_IS_IN(ped), true, true, true, true, true, 0, 0, true)
-        end, function() ENTITY.SET_ENTITY_PROOFS(PED.GET_VEHICLE_PED_IS_IN(ped), false, false, false, false, false, 0, 0, false)
+        ENTITY.SET_ENTITY_PROOFS(PED.GET_VEHICLE_PED_IS_IN(ped), true, true, true, true, true, false, false, true)
+        end, function() 
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        ENTITY.SET_ENTITY_PROOFS(PED.GET_VEHICLE_PED_IS_IN(ped), false, false, false, false, false, false, false, false)
     end)
 
     menu.action(friendly, "Level ihn hoch", {}, "Gibt ihm ungefährt 175.000 RP. Gibt einem Level 1er circa 25 Level", function()
@@ -1201,22 +1203,6 @@ function PlayerlistFeatures(pid)
     local trollingOpt <const> = menu.list(playerr, "Trolling", {}, "") --Erstellt die Liste
 	menu.divider(trollingOpt, "Athego's Script [DEV] - Trolling") --Name der Liste
 
-    menu.action(trollingOpt, "Launch Player", {"launch"}, "", function() 
-        local stinky_butt = util.joaat("adder")
-        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        local pos = ENTITY.GET_ENTITY_COORDS(ped)
-        pos.z -= 10
-        request_model(stinky_butt)
-        local stinky_vehicle = entities.create_vehicle(stinky_butt, pos, 0)
-        ENTITY.SET_ENTITY_VISIBLE(stinky_vehicle, false)
-        util.yield(250)
-        if stinky_vehicle ~= 0 then
-            ENTITY.APPLY_FORCE_TO_ENTITY(stinky_vehicle, 1, 0.0, 0.0, 120.0, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1)
-        end
-        util.yield(150)
-        entities.delete_by_handle(stinky_vehicle)
-    end)   
-
     menu.toggle_loop(trollingOpt, "Water Loop", {}, "", function()
         local target_ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local coords = ENTITY.GET_ENTITY_COORDS(target_ped)
@@ -1233,17 +1219,6 @@ function PlayerlistFeatures(pid)
         local target_ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local coords = ENTITY.GET_ENTITY_COORDS(target_ped)
         FIRE.ADD_EXPLOSION(coords['x'], coords['y'], coords['z'], math.random(0, 82), 1.0, true, false, 0.0)
-    end)
-    
-    menu.action(trollingOpt, "Aus Fahrzeug kicken", {}, "", function(toggled)
-        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        if PED.IS_PED_IN_ANY_VEHICLE(ped, false) then
-            player_veh = PED.GET_VEHICLE_PED_IS_USING(ped)
-            DECORATOR.DECOR_REGISTER("Player_Vehicle", 3)
-            DECORATOR.DECOR_SET_INT(player_veh,"Player_Vehicle", 0)
-        else
-            util.toast("Spieler ist in keinem Auto!")
-        end
     end)
 
     local freeze = menu.list(trollingOpt, "Spieler einfrieren", {}, "")
@@ -1308,18 +1283,24 @@ function PlayerlistFeatures(pid)
         glitchPlayer = toggled
 
         while glitchPlayer do
+            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+            local pos = ENTITY.GET_ENTITY_COORDS(ped, false)
+            if v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_position(pid)) > 400.0 
+            and v3.distance(pos, players.get_cam_pos(players.user())) > 400.0 then
+                util.toast("Spieler ist außerhalb des Rendering bereiches!")
+                menu.set_value(glitchPlayer_toggle, false);
+            break end
+
             if not players.exists(pid) then 
-                util.toast("[Athego's Script] Spieler existiert nicht!")
+                util.toast("Spieler existiert nicht!")
                 menu.set_value(glitchPlayer_toggle, false);
             break end
             local glitch_hash = object_hash
             local poopy_butt = util.joaat("rallytruck")
             request_model(glitch_hash)
             request_model(poopy_butt)
-            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-            local playerpos = ENTITY.GET_ENTITY_COORDS(ped, false)
-            local stupid_object = entities.create_object(glitch_hash, playerpos)
-            local glitch_vehicle = entities.create_vehicle(poopy_butt, playerpos, 0)
+            local stupid_object = entities.create_object(glitch_hash, pos)
+            local glitch_vehicle = entities.create_vehicle(poopy_butt, pos, 0)
             ENTITY.SET_ENTITY_VISIBLE(stupid_object, false)
             ENTITY.SET_ENTITY_VISIBLE(glitch_vehicle, false)
             ENTITY.SET_ENTITY_INVINCIBLE(stupid_object, true)
@@ -1346,18 +1327,24 @@ function PlayerlistFeatures(pid)
         request_model(object_hash)
         
         while glitchVeh do
+            if v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_position(pid)) > 400.0 
+            and v3.distance(pos, players.get_cam_pos(players.user())) > 400.0 then
+                util.toast("Spieler ist außerhalb des Rendering bereiches!")
+                menu.set_value(glitchVehCmd, false);
+            break end
+
             if not players.exists(pid) then 
-                util.toast("[Athego's Script] Spieler existiert nicht!")
-                menu.set_value(glitchPlayer_toggle, false);
+                util.toast("Spieler existiert nicht!")
+                menu.set_value(glitchVehCmd, false);
             break end
 
             if not PED.IS_PED_IN_VEHICLE(ped, player_veh, false) then 
-                util.toast("[Athego's Script] Spieler ist in keinem Fahrzeug!")
+                util.toast("Spieler ist in keinem Fahrzeug!")
                 menu.set_value(glitchVehCmd, false);
             break end
 
             if not VEHICLE.ARE_ANY_VEHICLE_SEATS_FREE(player_veh) then
-                util.toast("[Athego's Script] Kein freier Sitz mehr Verfügbar!")
+                util.toast("Kein freier Sitz mehr im Fahrzeug!")
                 menu.set_value(glitchVehCmd, false);
             break end
 
@@ -1387,7 +1374,6 @@ function PlayerlistFeatures(pid)
                     end
                 end
             end
-            util.yield()
             if not menu.get_value(glitchVehCmd) then
                 entities.delete_by_handle(glitched_ped)
                 entities.delete_by_handle(glitch_obj)
@@ -1516,29 +1502,6 @@ function PlayerlistFeatures(pid)
             menu.trigger_commands("invisibility off")
         end)
     end)
-    
-    menu.action(crashes, "Hiroshima", {"hiroshima"}, "", function()
-        local user = players.user()
-        local user_ped = players.user_ped()
-        local pos = players.get_position(user)
-        BlockSyncs(pid, function() 
-            util.yield(100)
-            PLAYER.SET_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(players.user(), 0xFBF7D21F)
-            WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user_ped, 0xFBAB5776, 100, false)
-            TASK.TASK_PARACHUTE_TO_TARGET(user_ped, pos.x, pos.y, pos.z)
-            util.yield(200)
-            TASK.CLEAR_PED_TASKS_IMMEDIATELY(user_ped)
-            util.yield(500)
-            WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user_ped, 0xFBAB5776, 100, false)
-            PLAYER.CLEAR_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(user)
-            util.yield(1000)
-            for i = 1, 5 do
-                util.spoof_script("freemode", SYSTEM.WAIT)
-            end
-            ENTITY.SET_ENTITY_HEALTH(user_ped, 0)
-            NETWORK.NETWORK_RESURRECT_LOCAL_PLAYER(pos, 0, false, false, 0)
-        end)
-    end)
 
     menu.action(crashes, "Kinder Schutz Service", {""}, "", function()
         local mdl = util.joaat('a_c_poodle')
@@ -1573,6 +1536,15 @@ function PlayerlistFeatures(pid)
             math.random(int_min, int_max), math.random(int_min, int_max), math.random(int_min, int_max), math.random(int_min, int_max),
             math.random(int_min, int_max), pid, math.random(int_min, int_max), math.random(int_min, int_max), math.random(int_min, int_max)})
         end
+        util.yield()
+        for i = 1, 15 do
+            util.trigger_script_event(1 << pid, {1348481963, pid, math.random(int_min, int_max)})
+        end
+        menu.trigger_commands("givesh " .. players.get_name(pid))
+        util.yield(100)
+        util.trigger_script_event(1 << pid, {495813132, pid, 0, 0, -12988, -99097, 0})
+        util.trigger_script_event(1 << pid, {495813132, pid, -4640169, 0, 0, 0, -36565476, -53105203})
+        util.trigger_script_event(1 << pid, {495813132, pid,  0, 1, 23135423, 3, 3, 4, 827870001, 5, 2022580431, 6, -918761645, 7, 1754244778, 8, 827870001, 9, 17})
     end)
 
 end
@@ -1742,6 +1714,21 @@ menu.toggle_loop(detections, "Noclip", {}, "Erkennt ob Spieler Noclip benutzten 
         and vel.x == 0.0 and vel.y == 0.0 and vel.z == 0.0 then
             util.toast(players.get_name(pid) .. " benutzt Noclip!")
             break
+        end
+    end
+end)
+
+menu.toggle_loop(detections, "Zuschauen", {}, "Erkennt ob dir jemand zuguckt!", function()
+    for _, pid in ipairs(players.list(false, true, true)) do
+        for i, interior in ipairs(interior_stuff) do
+            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+            if not util.is_session_transition_active() and get_transition_state(pid) ~= 0 and get_interior_player_is_in(pid) == interior
+            and not NETWORK.NETWORK_IS_PLAYER_FADING(pid) and ENTITY.IS_ENTITY_VISIBLE(ped) and not PED.IS_PED_DEAD_OR_DYING(ped) then
+                if v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_cam_pos(pid)) < 15.0 and v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_position(pid)) > 20.0 then
+                    util.toast(players.get_name(pid) .. " Is Watching You")
+                    break
+                end
+            end
         end
     end
 end)
