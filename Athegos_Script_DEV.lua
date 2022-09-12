@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.92")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.93")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.92
+local localVer = 1.93
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -490,7 +490,7 @@ function PlayerlistFeatures(pid)
         FIRE.ADD_EXPLOSION(coords['x'], coords['y'], coords['z'], math.random(0, 82), 1.0, true, false, 0.0)
     end)
     
-    menu.action(trolling, "Aus Fahrzeug kicken", {}, "", function(toggled)
+    menu.action(trollingOpt, "Aus Fahrzeug kicken", {}, "", function(toggled)
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         if PED.IS_PED_IN_ANY_VEHICLE(ped, false) then
             player_veh = PED.GET_VEHICLE_PED_IS_USING(ped)
@@ -501,7 +501,7 @@ function PlayerlistFeatures(pid)
         end
     end)
 
-    local freeze = menu.list(trolling, "Spieler einfrieren", {}, "")
+    local freeze = menu.list(trollingOpt, "Spieler einfrieren", {}, "")
     player_toggle_loop(freeze, pid, "Hard Freeze", {}, "", function()
         util.trigger_script_event(1 << pid, {0x4868BC31, pid, 0, 0, 0, 0, 0})
         util.yield(500)
