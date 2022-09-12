@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.4")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.5")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.4
+local localVer = 1.5
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -384,6 +384,12 @@ function mod_uses(type, incr)
     end
 end
 
+---------------------
+---------------------
+-- Spieler Overlay
+---------------------
+---------------------
+
 UI = {}
 
 UI.new = function()
@@ -414,9 +420,9 @@ UI.new = function()
     }
 
     highlight_colour = {
-        ["r"] = 1.0,
+        ["r"] = 0.0,
         ["g"] = 0.0,
-        ["b"] = 0.0,
+        ["b"] = 1.0,
         ["a"] = 1
     }
 
@@ -1101,10 +1107,10 @@ end)
 
 local regionDetect = {
     [0]  = {kick = false, lang = "English"},
-    [1]  = {kick = false, lang = "French"},
-    [2]  = {kick = false, lang = "German"},
+    [1]  = {kick = false, lang = "Französisch"},
+    [2]  = {kick = false, lang = "Deutsch"},
     [3]  = {kick = false, lang = "Italian"},
-    [4]  = {kick = false, lang = "Spanish"},
+    [4]  = {kick = false, lang = "Spanisch"},
     [5]  = {kick = false, lang = "Brazilian"},
     [6]  = {kick = false, lang = "Polish"},
     [7]  = {kick = false, lang = "Russian"},
@@ -1114,6 +1120,12 @@ local regionDetect = {
     [11] = {kick = false, lang = "Mexican"},
     [12] = {kick = false, lang = "Chinese Simplified"},
 }
+
+---------------------
+---------------------
+-- Spieler Overlay Ende
+---------------------
+---------------------
 
 -- check online version
 online_v = tonumber(NETWORK._GET_ONLINE_VERSION())
@@ -1131,8 +1143,8 @@ local vehicle <const> = menu.list(menu.my_root(), "Vehicle", {}, "")
     menu.divider(vehicle, "Athego's Script [DEV] - Vehicle")
 local detections <const> = menu.list(menu.my_root(), "Modder Detections", {}, "")
     menu.divider(detections, "Athego's Script [DEV] - Detections")
-local overlay <const> = menu.list(menu.my_root(), "Spieler Overlay", {}, "")
-    menu.divider(detections, "Athego's Script [DEV] - Spieler Overlay")
+local overlay <const> = menu.list(menu.my_root(), "Overlay", {}, "")
+    menu.divider(overlay, "Athego's Script [DEV] - Overlay")
 
 ---------------------
 ---------------------
@@ -1578,6 +1590,12 @@ players.on_join(PlayerlistFeatures)
 ---------------------
 ---------------------
 
+---------------------
+---------------------
+-- Spieler Overlay
+---------------------
+---------------------
+
 menu.toggle(overlay, "Spieler Overlay", {"SpielerOverlay"}, "",
     function(state)
         UItoggle = state
@@ -1615,23 +1633,23 @@ menu.toggle(overlay, "Spieler Overlay", {"SpielerOverlay"}, "",
                     end
             end
             myUI.finish()
-            myUI.begin(" Language ", 0.292, 0.02, "kpjbdgkzjsdbg")
+            myUI.begin("Sprache ", 0.290, 0.02, "kpjbdgkzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
                myUI.label(regionDetect[players.get_language(pid)].lang,"")
             end
             myUI.finish()
-            myUI.begin("Input", 0.372, 0.02, "kpj2bdgd2hkzjsdbg")
+            myUI.begin("Eingabe", 0.353, 0.02, "kpj2bdgd2hkzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
             if players.is_using_controller(pid) then
 				myUI.label("Controller","")
 				else
-                myUI.label("Maus/Tastatur","")
+                myUI.label("Tastatur","")
 				end
             end
             myUI.finish()
-            myUI.begin("Fahrzeug", 0.426, 0.02, "kpfj2bdgd2hkzsdbg")
+            myUI.begin("Fahrzeug", 0.417, 0.02, "kpfj2bdgd2hkzsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
 				playerinfo1 = players.get_vehicle_model(pid)
@@ -1647,6 +1665,12 @@ menu.toggle(overlay, "Spieler Overlay", {"SpielerOverlay"}, "",
             util.yield()
         end
     end)
+
+---------------------
+---------------------
+-- Spieler Overlay Ende
+---------------------
+---------------------
 
 menu.toggle_loop(detections, "Gemoddetes Fahrzeug", {}, "Erkennt ob jemand ein Gemoddetes Fahrzeug benutzt", function()
     for _, pid in ipairs(players.list(false, true, true)) do
