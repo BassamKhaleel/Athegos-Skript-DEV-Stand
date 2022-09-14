@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.61")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.62")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.61
+local localVer = 1.62
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -383,95 +383,6 @@ function mod_uses(type, incr)
         object_uses = object_uses + incr
     end
 end
-
-function table.save(  tbl,filename )
-    local charS,charE = "   ","\n"
-    local file,err = io.open( filename, "wb" )
-    if err then return err end
-    -- initiate variables for save procedure
-    local tables,lookup = { tbl },{ [tbl] = 1 }
-    file:write( "return {"..charE )
-    for idx,t in ipairs( tables ) do
-       file:write( "-- Table: {"..idx.."}"..charE )
-       file:write( "{"..charE )
-       local thandled = {}
-       for i,v in ipairs( t ) do
-          thandled[i] = true
-          local stype = type( v )
-          -- only handle value
-          if stype == "table" then
-             if not lookup[v] then
-                table.insert( tables, v )
-                lookup[v] = #tables
-             end
-             file:write( charS.."{"..lookup[v].."},"..charE )
-          elseif stype == "string" then
-             file:write(  charS..exportstring( v )..","..charE )
-          elseif stype == "number" then
-             file:write(  charS..tostring( v )..","..charE )
-          end
-       end
-       for i,v in pairs( t ) do
-          -- escape handled values
-          if (not thandled[i]) then
-             local str = ""
-             local stype = type( i )
-             -- handle index
-             if stype == "table" then
-                if not lookup[i] then
-                   table.insert( tables,i )
-                   lookup[i] = #tables
-                end
-                str = charS.."[{"..lookup[i].."}]="
-             elseif stype == "string" then
-                str = charS.."["..exportstring( i ).."]="
-             elseif stype == "number" then
-                str = charS.."["..tostring( i ).."]="
-             end
-             if str ~= "" then
-                stype = type( v )
-                -- handle value
-                if stype == "table" then
-                   if not lookup[v] then
-                      table.insert( tables,v )
-                      lookup[v] = #tables
-                   end
-                   file:write( str.."{"..lookup[v].."},"..charE )
-                elseif stype == "string" then
-                   file:write( str..exportstring( v )..","..charE )
-                elseif stype == "number" then
-                   file:write( str..tostring( v )..","..charE )
-                end
-             end
-          end
-       end
-       file:write( "},"..charE )
-    end
-    file:write( "}" )
-    file:close()
- end
- 
- function table.load( sfile )
-    local ftables,err = loadfile( sfile )
-    if err then return _,err end
-    local tables = ftables()
-    for idx = 1,#tables do
-       local tolinki = {}
-       for i,v in pairs( tables[idx] ) do
-          if type( v ) == "table" then
-             tables[idx][i] = tables[v[1]]
-          end
-          if type( i ) == "table" and tables[i[1]] then
-             table.insert( tolinki,{ i,tables[i[1]] } )
-          end
-       end
-       -- link indices
-       for _,v in ipairs( tolinki ) do
-          tables[idx][v[2]],tables[idx][v[1]] =  tables[idx][v[1]],nil
-       end
-    end
-    return tables[1]
- end
 
 ---------------------
 ---------------------
@@ -1678,14 +1589,6 @@ players.on_join(function(pid)
             end
         end
 
-        local ip = players.get_connect_ip(pid)
-        if detection_follow then
-            if table.contains(known_players_this_game_session, ip) then 
-                util.toast("[Athego's Skript]" .. players.get_name(pid) .. "war heute schonmal in einer Lobby von dir und verfolgt dich möglicherweise!")
-            else
-                known_players_this_game_session[#known_players_this_game_session + 1 ] = ip
-            end
-        end
     end
 
 end)
@@ -1865,12 +1768,6 @@ menu.toggle_loop(detections, "Zuschauen", {}, "Erkennt ob dir jemand zuguckt!", 
             end
         end
     end
-end)
-
-
-detection_follow = false
-menu.toggle(detections, "Verfolgt dich", {}, "Erkennt ob dich ein Spieler aus einer vorherigen Lobby verfolgt!", function(on)
-    detection_follow = on
 end)
 
 detection_bslevel = false
