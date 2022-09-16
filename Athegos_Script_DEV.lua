@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.7")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.71")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.7
+local localVer = 1.71
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -1127,6 +1127,24 @@ local regionDetect = {
 ---------------------
 ---------------------
 
+---------------------
+---------------------
+-- InfoOverlay Start
+---------------------
+---------------------
+
+local replayInterface = memory.read_long(memory.rip(memory.scan("48 8D 0D ? ? ? ? 48 8B D7 E8 ? ? ? ? 48 8D 0D ? ? ? ? 8A D8 E8 ? ? ? ? 84 DB 75 13 48 8D 0D") + 3))
+local pedInterface = memory.read_long(replayInterface + 0x0018)
+local vehInterface = memory.read_long(replayInterface + 0x0010)
+local objectInterface = memory.read_long(replayInterface + 0x0028)
+local pickupInterface = memory.read_long(replayInterface + 0x0020)
+
+---------------------
+---------------------
+-- InfoOverlay Ende
+---------------------
+---------------------
+
 -- check online version
 online_v = tonumber(NETWORK._GET_ONLINE_VERSION())
 if online_v > ocoded_for then
@@ -1134,7 +1152,7 @@ if online_v > ocoded_for then
 end
 
 --Menü Divider
-menu.divider(menu.my_root(), "Athego's Script [DEV]")
+menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.7")
 local self <const> = menu.list(menu.my_root(), "Self", {}, "")
     menu.divider(self, "Athego's Script [DEV] - Self")
 local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
@@ -1549,7 +1567,6 @@ function PlayerlistFeatures(pid)
 
 end
 
-local known_players_this_game_session = {}
 players.on_join(function(pid)
 
     PlayerlistFeatures(pid)
@@ -1560,21 +1577,24 @@ players.on_join(function(pid)
             util.yield()
         end
 
-        if detection_lance then
+        if detection_athego then
             if players.get_rockstar_id(pid) == 63631473 then
                 util.toast("[Athego's Skript] " .. players.get_name(pid) .. "ist entweder der echte Athego oder es Spooft nur.")
+                util.log("[Athego's Skript] " .. players.get_name(pid) .. "ist entweder der echte Athego oder es Spooft nur.")
             end
         end
 
         if detection_bslevel then
-            if players.get_rp(pid) > util.get_rp_required_for_rank(1000) then
+            if players.get_rp(pid) > util.get_rp_required_for_rank(2000) then
                 util.toast("[Athego's Skript] " .. players.get_name(pid) .. "hat wahrscheinlich ein Gemoddetes Level!")
+                util.log("[Athego's Skript] " .. players.get_name(pid) .. "hat wahrscheinlich ein Gemoddetes Level! -> " .. players.get_rp(pid) .. " > " .. util.get_rp_required_for_rank(2000))
             end
         end
 
         if detection_money then
             if players.get_money(pid) > 1000000000 then
                 util.toast("[Athego's Skript] " .. players.get_name(pid) .. "hat wahrscheinlich Gemoddetes Geld!")
+                util.log("[Athego's Skript] " .. players.get_name(pid) .. "hat wahrscheinlich Gemoddetes Geld! -> " .. players.get_money(pid) .. " > 1.000.000.000")
             end
         end
 
@@ -1667,6 +1687,91 @@ menu.toggle(overlay, "Spieler Overlay", {"SpielerOverlay"}, "",
 ---------------------
 ---------------------
 -- Spieler Overlay Ende
+---------------------
+---------------------
+
+---------------------
+---------------------
+-- InfoOverlay Start
+---------------------
+---------------------
+
+menu.toggle(overlay, "Info Overlay", {"InfoOverlay"}, "Schönes Info Overlay",
+    function(state2)
+        UItoggle2 = state2
+        while UItoggle2 do
+            local player = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(players.user())
+    --#region window 3
+    myUI.begin("Info Overlay",0.17, 0.785, "asdfghjkl")
+    myUI.label("Host: ", players.get_name(players.get_host()), {
+        ["r"] = 1,
+        ["g"] = 1,
+        ["b"] = 1,
+        ["a"] = 1
+    })
+    myUI.label("Script Host: ", players.get_name(players.get_script_host()), {
+        ["r"] = 1,
+        ["g"] = 1,
+        ["b"] = 1,
+        ["a"] = 1
+    })
+    myUI.label("Time: ", os.date("%X"), {
+        ["r"] = 1,
+        ["g"] = 1,
+        ["b"] = 1,
+        ["a"] = 1
+    })
+
+    myUI.label("FPS: ", fps, {
+        ["r"] = 1,
+        ["g"] = 1,
+        ["b"] = 1,
+        ["a"] = 1
+    })
+
+    myUI.label("Peds: ", memory.read_int(pedInterface + 0x0110).."/"..memory.read_int(pedInterface + 0x0108), {
+        ["r"] = 1,
+        ["g"] = 1,
+        ["b"] = 1,
+        ["a"] = 1
+    })
+
+    myUI.label("Vehicles: ", memory.read_int(vehInterface + 0x0190).."/"..memory.read_int(vehInterface + 0x0188), {
+        ["r"] = 1,
+        ["g"] = 1,
+        ["b"] = 1,
+        ["a"] = 1
+    })
+
+    myUI.label("Objects: ", memory.read_int(objectInterface + 0x0168).."/"..memory.read_int(objectInterface + 0x0160), {
+        ["r"] = 1,
+        ["g"] = 1,
+        ["b"] = 1,
+        ["a"] = 1
+    })
+
+    myUI.label("Pickups: ", memory.read_int(pickupInterface + 0x0110).."/"..memory.read_int(pickupInterface + 0x0108), {
+        ["r"] = 1,
+        ["g"] = 1,
+        ["b"] = 1,
+        ["a"] = 1
+    })
+
+    myUI.finish()
+-- #endregio
+    util.yield()
+    end
+end)
+
+---------------------
+---------------------
+-- InfoOverlay Ende
+---------------------
+---------------------
+
+---------------------
+---------------------
+-- Detections Start
 ---------------------
 ---------------------
 
@@ -1769,9 +1874,9 @@ menu.toggle(detections, "Gemoddetes Geld", {}, "Erkennt ob jemand zu viel Geld h
     detection_money = on
 end, false)
 
-detection_lance = true
+detection_athego = true
 menu.toggle(detections, "Athego", {}, "Erkennt mich", function(on)
-    detection_lance = on
+    detection_athego = on
 end, true)
 
 
