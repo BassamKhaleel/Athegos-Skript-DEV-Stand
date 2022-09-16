@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.63")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.68")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.63
+local localVer = 1.68
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -1549,15 +1549,10 @@ function PlayerlistFeatures(pid)
 
 end
 
-for pid = 0,30 do
-    if players.exists(pid) then
-        PlayerlistFeatures(pid)
-    end
-end
-
 local known_players_this_game_session = {}
 players.on_join(function(pid)
 
+    PlayerlistFeatures(pid)
 
     if pid ~= players.user() then
         -- detections
