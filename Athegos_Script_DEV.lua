@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.68")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.7")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.68
+local localVer = 1.7
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -1562,19 +1562,19 @@ players.on_join(function(pid)
 
         if detection_lance then
             if players.get_rockstar_id(pid) == 63631473 then
-                util.toast("[Athego's Skript]" .. players.get_name(pid) .. "ist entweder der echte Athego oder es Spooft nur.")
+                util.toast("[Athego's Skript] " .. players.get_name(pid) .. "ist entweder der echte Athego oder es Spooft nur.")
             end
         end
 
         if detection_bslevel then
             if players.get_rp(pid) > util.get_rp_required_for_rank(1000) then
-                util.toast("[Athego's Skript]" .. players.get_name(pid) .. "hat wahrscheinlich ein Gemoddetes Level!")
+                util.toast("[Athego's Skript] " .. players.get_name(pid) .. "hat wahrscheinlich ein Gemoddetes Level!")
             end
         end
 
         if detection_money then
             if players.get_money(pid) > 1000000000 then
-                util.toast("[Athego's Skript]" .. players.get_name(pid) .. "hat wahrscheinlich Gemoddetes Geld!")
+                util.toast("[Athego's Skript] " .. players.get_name(pid) .. "hat wahrscheinlich Gemoddetes Geld!")
             end
         end
 
@@ -1942,9 +1942,8 @@ load_loadout = menu.action(customloadoutOpt, "Loadout laden", {"loadloadout"}, "
 	end
 )
 
-customloadout = false
-menu.toggle(customloadoutOpt, "Auto-Load", {}, "Lädt deine Waffen bei jedem Sitzungswechsel neu.", function(on)
-	customloadout = on
+auto_load = menu.toggle(customloadoutOpt, "Auto-Load", {}, "Lädt deine Waffen bei jedem Sitzungswechsel neu.", function(on)
+	do_autoload = on
 end)
 
 from_scratch = menu.action(customloadoutOpt, "Fang von Vorne an", {}, "Löscht jede Waffe damit du dein Loadout so einrichten kannst wie du magst.",
