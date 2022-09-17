@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.72")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.8")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.72
+local localVer = 1.8
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -1176,6 +1176,91 @@ function PlayerlistFeatures(pid)
 
     ---------------------
 	---------------------
+	-- Anti-Modder
+	---------------------
+	---------------------
+
+    local antimodder = menu.list(playerr, "Anti-Modder", {}, "")
+    menu.divider(antimodder, "Athego's Script [DEV] - Anti-Modder")
+
+    player_toggle_loop(antimodder, pid, "Entferne Godmode", {}, "Wird von den meisten Menüs gegblockt", function()
+        util.trigger_script_event(1 << pid, {0xAD36AA57, pid, 0x96EDB12F, math.random(0, 0x270F)})
+    end)
+
+    player_toggle_loop(antimodder, pid, "Entferne Fahrzeug Godmode", {}, "", function()
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        if PED.IS_PED_IN_ANY_VEHICLE(ped, false) and not PED.IS_PED_DEAD_OR_DYING(ped) then
+            local veh = PED.GET_VEHICLE_PED_IS_IN(ped, false)
+            ENTITY.SET_ENTITY_CAN_BE_DAMAGED(veh, true)
+            ENTITY.SET_ENTITY_INVINCIBLE(veh, false)
+            ENTITY.SET_ENTITY_PROOFS(veh, false, false, false, false, false, 0, 0, false)
+        end
+    end)
+
+    ---------------------
+	---------------------
+	-- Anti-Modder/kill_godmode
+	---------------------
+	---------------------
+
+    local kill_godmode = menu.list(antimodder, "Töte Godmode Spieler", {}, "")
+    menu.divider(kill_godmode, "Athego's Script [DEV] - Töte Godmode Spieler")
+
+    menu.action(kill_godmode, "Stun", {""}, "Funktioniert bei Menüs, die Proofs für den Godmode verwenden", function()
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1, pos.x, pos.y, pos.z, 99999, true, util.joaat("weapon_stungun"), players.user_ped(), false, true, 1.0)
+    end)
+
+    menu.slider_text(kill_godmode, "Zerdrücken", {}, "", {"Khanjali", "APC"}, function(index, veh)
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        local vehicle = util.joaat(veh)
+        request_model(vehicle)
+
+        pluto_switch veh do
+            case "Khanjali":
+            height = 2.8
+            offset = 0
+            break
+            case "APC":
+            height = 3.4
+            offset = -1.5
+            break
+        end
+
+        if TASK.IS_PED_STILL(ped) then
+            distance = 0
+        elseif not TASK.IS_PED_STILL(ped) then
+            distance = 3
+        end
+
+        local vehicle1 = entities.create_vehicle(vehicle, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid), offset, distance, height), ENTITY.GET_ENTITY_HEADING(ped))
+        local vehicle2 = entities.create_vehicle(vehicle, pos, 0)
+        local vehicle3 = entities.create_vehicle(vehicle, pos, 0)
+        local vehicle4 = entities.create_vehicle(vehicle, pos, 0)
+        local spawned_vehs = {vehicle4, vehicle3, vehicle2, vehicle1}
+        ENTITY.ATTACH_ENTITY_TO_ENTITY(vehicle2, vehicle1, 0, 0, 3, 0, 0, 0, -180, 0, false, true, false, 0, true)
+        ENTITY.ATTACH_ENTITY_TO_ENTITY(vehicle3, vehicle1, 0, 3, 3, 0, 0, 0, -180, 0, false, true, false, 0, true)
+        ENTITY.ATTACH_ENTITY_TO_ENTITY(vehicle4, vehicle1, 0, 3, 0, 0, 0, 0, 0, 0, false, true, false, 0, true)
+        ENTITY.SET_ENTITY_VISIBLE(vehicle1, false)
+        util.yield(5000)
+        for i = 1, #spawned_vehs do
+            entities.delete_by_handle(spawned_vehs[i])
+        end
+    end)
+
+    player_toggle_loop(kill_godmode, pid, "Explodieren", {}, "Von den meisten Menüs blockiert", function()
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        if not PED.IS_PED_DEAD_OR_DYING(ped) and not NETWORK.NETWORK_IS_PLAYER_FADING(pid) then
+            util.trigger_script_event(1 << pid, {0xAD36AA57, pid, 0x96EDB12F, math.random(0, 0x270F)})
+            FIRE.ADD_OWNED_EXPLOSION(players.user_ped(), pos, 2, 50, true, false, 0.0)
+        end
+    end)
+
+    ---------------------
+	---------------------
 	-- FRIENDLY
 	---------------------
 	---------------------
@@ -1210,6 +1295,16 @@ function PlayerlistFeatures(pid)
             util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x9, i, 1, 1, 1})
             util.yield()
         end
+    end)
+
+    local halloween_loop = menu.list(friendly, "Halloween Sammel Loop", {}, "")
+    local halloween_delay = 500
+    menu.slider(halloween_loop, "Delay", {}, "", 0, 2500, 500, 10, function(amount)
+        halloween_delay = amount
+    end)
+    player_toggle_loop(halloween_loop, pid, "Loop aktivieren", {}, "Wird ihm etwas Geld geben und andere Sachen", function()
+        util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x8, -1, 1, 1, 1})
+        util.yield(halloween_delay)
     end)
 
 	---------------------
@@ -1276,9 +1371,117 @@ function PlayerlistFeatures(pid)
 
         local radar_dish = entities.create_object(radar, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED(pid), 0, 20, -3))
         NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(radar_dish)
-        chat.send_message("[Athego's Script] Benutzt NASA Sateliten um zu schauen wer gefragt hat", false, true, true)
+        chat.send_message("Benutze NASA Sateliten um zu schauen wer gefragt hat", false, true, true)
         util.yield(10000)
         entities.delete_by_handle(radar_dish)
+    end)
+
+    menu.action(trollingOpt, "Töte Spieler in Gebäuden", {}, "Funktioniert nicht in Apartment's", function()
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+
+        for i, interior in ipairs(interior_stuff) do
+            if get_interior_player_is_in(pid) == interior then
+                util.toast("[Athego's Script] Spieler ist in keinem Gebäude")
+            return end
+            if get_interior_player_is_in(pid) ~= interior then
+                util.trigger_script_event(1 << pid, {0xAD36AA57, pid, 0x96EDB12F, math.random(0, 0x270F)})
+                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1, pos.x, pos.y, pos.z, 1000, true, util.joaat("weapon_stungun"), players.user_ped(), false, true, 1.0)
+            end
+        end
+    end)
+
+    ---------------------
+	---------------------
+	-- TROLLING/Cage
+	---------------------
+	---------------------
+
+    local cage = menu.list(trollingOpt, "Käfige", {}, "")
+    menu.divider(cage, "Athego's Script [DEV] - Käfige")
+
+    menu.action(cage, "Elektrischer Käfig", {}, "", function(cl)
+        local number_of_cages = 6
+        local elec_box = util.joaat("prop_elecbox_12")
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        pos.z -= 0.5
+        request_model(elec_box)
+        local temp_v3 = v3.new(0, 0, 0)
+        for i = 1, number_of_cages do
+            local angle = (i / number_of_cages) * 360
+            temp_v3.z = angle
+            local obj_pos = temp_v3:toDir()
+            obj_pos:mul(2.5)
+            obj_pos:add(pos)
+            for offs_z = 1, 5 do
+                local electric_cage = entities.create_object(elec_box, obj_pos)
+                spawned_objects[#spawned_objects + 1] = electric_cage
+                ENTITY.SET_ENTITY_ROTATION(electric_cage, 90.0, 0.0, angle, 2, 0)
+                obj_pos.z += 0.75
+                ENTITY.FREEZE_ENTITY_POSITION(electric_cage, true)
+            end
+        end
+    end)
+
+    menu.action(cage, "Michael Jackson Käfig", {}, "", function(cl)
+        local number_of_cages = 6
+        local coffin_hash = util.joaat("prop_coffin_02b")
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        request_model(coffin_hash)
+        local temp_v3 = v3.new(0, 0, 0)
+        for i = 1, number_of_cages do
+            local angle = (i / number_of_cages) * 360
+            temp_v3.z = angle
+            local obj_pos = temp_v3:toDir()
+            obj_pos:mul(0.8)
+            obj_pos:add(pos)
+            obj_pos.z += 0.1
+           local coffin = entities.create_object(coffin_hash, obj_pos)
+           spawned_objects[#spawned_objects + 1] = coffin
+           ENTITY.SET_ENTITY_ROTATION(coffin, 90.0, 0.0, angle,  2, 0)
+           ENTITY.FREEZE_ENTITY_POSITION(coffin, true)
+        end
+    end)
+
+    menu.action(cage, "Schiffcontainer", {}, "", function()
+        local container_hash = util.joaat("prop_container_ld_pu")
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        request_model(container_hash)
+        pos.z -= 1
+        local container = entities.create_object(container_hash, pos, 0)
+        spawned_objects[#spawned_objects + 1] = container
+        ENTITY.FREEZE_ENTITY_POSITION(container, true)
+    end)
+
+    menu.action(cage, "Gas Käfig", {}, "", function()
+        local gas_cage_hash = util.joaat("prop_gascage01")
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        request_model(gas_cage_hash)
+        pos.z -= 1
+        local gas_cage = entities.create_object(gas_cage_hash, pos, 0)
+        pos.z += 1
+        local gas_cage2 = entities.create_object(gas_cage_hash, pos, 0)
+        spawned_objects[#spawned_objects + 1] = gas_cage
+        spawned_objects[#spawned_objects + 1] = gas_cage2
+        ENTITY.FREEZE_ENTITY_POSITION(gas_cage, true)
+        ENTITY.FREEZE_ENTITY_POSITION(gas_cage2, true)
+    end)
+
+
+    menu.action(cage, "Lösche gespawnte Käfige", {"clearcages"}, "", function()
+        local entitycount = 0
+        for i, object in ipairs(spawned_objects) do
+            ENTITY.SET_ENTITY_AS_MISSION_ENTITY(object, false, false)
+            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(object)
+            entities.delete_by_handle(object)
+            spawned_objects[i] = nil
+            entitycount += 1
+        end
+        util.toast("[Athego's Script] " .. entitycount .. " gespawnte Käfige wurden gelöscht!")
     end)
 
     ---------------------
@@ -1469,6 +1672,151 @@ function PlayerlistFeatures(pid)
 
     ---------------------
 	---------------------
+	-- Trolling/Unendlicher Ladebildschirm
+	---------------------
+	---------------------
+
+    local inf_loading = menu.list(trollingOpt, "Unendlicher Ladebildschirm", {}, "")
+    menu.divider(inf_loading, "Athego's Script [DEV] - Unendlicher Ladebildschirm")
+
+    menu.action(inf_loading, "MC Teleport Methode", {}, "", function()
+        util.trigger_script_event(1 << pid, {0xDEE5ED91, pid, 0, 32, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+    end)
+
+    menu.action(inf_loading, "Apartment Methode", {}, "", function()
+        util.trigger_script_event(1 << pid, {0x7EFC3716, pid, 0, 1, id})
+    end)
+
+
+    ---------------------
+	---------------------
+	-- Trolling/Blackscreen
+	---------------------
+	---------------------
+
+    player_toggle_loop(trollingOpt, pid, "Schwarzbild", {}, "", function()
+        util.trigger_script_event(1 << pid, {0xDEE5ED91, pid, math.random(1, 0x20), 0x20, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+        util.yield(1000)
+    end)
+
+    ---------------------
+	---------------------
+	-- Trolling/Blackscreen
+	---------------------
+	---------------------
+
+    player_toggle_loop(trollingOpt, pid, "Taser Loop", {}, "", function()
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        for i = 1, 50 do
+            MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1, pos.x, pos.y, pos.z, 0, true, util.joaat("weapon_stungun"), players.user_ped(), false, true, 1.0)
+        end
+        util.yield(100)
+    end)
+
+
+    ---------------------
+	---------------------
+	-- Trolling/ab in Knast
+	---------------------
+	---------------------
+
+    menu.action(trollingOpt, "Ab in Knast", {}, "", function()
+        local my_pos = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid))
+        local my_ped = PLAYER.GET_PLAYER_PED(players.user())
+        ENTITY.SET_ENTITY_COORDS_NO_OFFSET(my_ped, 1628.5234, 2570.5613, 45.56485, true, false, false, false)
+        menu.trigger_commands("givesh " .. players.get_name(pid))
+        menu.trigger_commands("summon " .. players.get_name(pid))
+        menu.trigger_commands("invisibility on")
+        menu.trigger_commands("otr")
+        util.yield(5000)
+        menu.trigger_commands("invisibility off")
+        menu.trigger_commands("otr")
+        ENTITY.SET_ENTITY_COORDS_NO_OFFSET(my_ped, my_pos)
+    end)
+
+    ---------------------
+	---------------------
+	-- Teleport
+	---------------------
+	---------------------
+
+    local tp_player = menu.list(playerr, "Spieler Teleportieren", {}, "")
+    menu.divider(tp_player, "Athego's Script [DEV] - Spieler Teleportieren")
+    local clubhouse = menu.list(tp_player, "Clubhäuser", {}, "")
+    menu.divider(clubhouse, "Athego's Script [DEV] - Clubhäuser")
+    local facility = menu.list(tp_player, "Apartments", {}, "")
+    menu.divider(facility, "Athego's Script [DEV] - Apartments")
+    local arcade = menu.list(tp_player, "Arkade", {}, "")
+    menu.divider(arcade, "Athego's Script [DEV] - Arkade")
+    local warehouse = menu.list(tp_player, "Lagerhaus", {}, "")
+    menu.divider(warehouse, "Athego's Script [DEV] - Lagerhäuser")
+    local cayoperico = menu.list(tp_player, "Cayo Perico", {}, "")
+    menu.divider(cayoperico, "Athego's Script [DEV] - Cayo Perico")
+
+    menu.action(tp_player, "Heist bestanden teleport", {}, "", function()
+        util.trigger_script_event(1 << pid, {0xAD1762A7, players.user(), pid, -1, 1, 1, 0, 1, 0}) 
+    end)
+
+    for id, name in pairs(All_business_properties) do
+        if id <= 12 then
+            menu.action(clubhouse, name, {}, "", function()
+                util.trigger_script_event(1 << pid, {0xDEE5ED91, pid, id, 0x20, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, math.random(1, 10)})
+            end)
+        elseif id > 12 and id <= 21 then
+            menu.action(facility, name, {}, "", function()
+                util.trigger_script_event(1 << pid, {0xDEE5ED91, pid, id, 0x20, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+            end)
+        elseif id > 21 then
+            menu.action(arcade, name, {}, "", function() 
+                util.trigger_script_event(1 << pid, {0xDEE5ED91, pid, id, 0x20, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1})
+            end)
+        end
+    end
+
+    local small = menu.list(warehouse, "Kleine Lagerhäuser", {}, "")
+    menu.divider(small, "Athego's Script [DEV] - Kleine Lagerhäuser")
+    local medium = menu.list(warehouse, "Mittlere Lagerhäuser", {}, "")
+    menu.divider(medium, "Athego's Script [DEV] - Mittlere Lagerhäuser")
+    local large = menu.list(warehouse, "Große Lagerhäuser", {}, "")
+    menu.divider(large, "Athego's Script [DEV] - Große Lagerhäuser")
+
+    for id, name in pairs(small_warehouses) do
+        menu.action(small, name, {}, "", function()
+            util.trigger_script_event(1 << pid, {0x7EFC3716, pid, 0, 1, id})
+        end)
+    end
+
+    for id, name in pairs(medium_warehouses) do
+        menu.action(medium, name, {}, "", function()
+            util.trigger_script_event(1 << pid, {0x7EFC3716, pid, 0, 1, id})
+        end)
+    end
+
+    for id, name in pairs(large_warehouses) do
+        menu.action(large, name, {}, "", function()
+            util.trigger_script_event(1 << pid, {0x7EFC3716, pid, 0, 1, id})
+        end)
+    end
+
+    menu.action(cayoperico, "Cayo Perico", {}, "", function()
+        util.trigger_script_event(1 << pid, {0x4868BC31, pid, 0, 0, 0x3, 1})
+    end)
+
+    menu.action(cayoperico, "Cayo Perico (Ohne Cutscene)", {}, "", function()
+        util.trigger_script_event(1 << pid, {0x4868BC31, pid, 0, 0, 0x4, 1})
+    end)
+
+    menu.action(cayoperico, "Cayo Perico verlassen", {}, "Spieler muss auf Cayo Perico sein damit es Funktioniert", function()
+        util.trigger_script_event(1 << pid, {0x4868BC31, pid, 0, 0, 0x3})
+    end)
+
+    menu.action(cayoperico, "Von Cayo Perico geschmissen", {}, "", function()
+        util.trigger_script_event(1 << pid, {0x4868BC31, pid, 0, 0, 0x4, 0})
+    end)
+
+    ---------------------
+	---------------------
 	-- PLAYER REMOVALS
 	---------------------
 	---------------------
@@ -1604,29 +1952,33 @@ function PlayerlistFeatures(pid)
     end)
 
     menu.action(crashes, "Lil Yachty", {}, "", function()
-        local user = players.user_ped()
-        local pos = players.get_position(pid)
-        local old_pos = ENTITY.GET_ENTITY_COORDS(user, false)
         local mdl = util.joaat("apa_mp_apa_yacht")
-        menu.trigger_commands("anticrashcam on")
+        local user = players.user_ped()
         BlockSyncs(pid, function()
+            local old_pos = ENTITY.GET_ENTITY_COORDS(user, false)
             WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user, 0xFBAB5776, 100, false)
             PLAYER.SET_PLAYER_HAS_RESERVE_PARACHUTE(players.user())
             PLAYER._SET_PLAYER_RESERVE_PARACHUTE_MODEL_OVERRIDE(players.user(), mdl)
-            util.yield(100)
-            ENTITY.SET_ENTITY_COORDS_NO_OFFSET(user, pos.x, pos.y, pos.z + 300, false, false, false)
-            util.yield(1000)
-            PED.FORCE_PED_TO_OPEN_PARACHUTE(user)
-            util.yield(250)
+            util.yield(50)
+            local pos = players.get_position(pid)
+            pos.z += 300
             TASK.CLEAR_PED_TASKS_IMMEDIATELY(user)
-            PAD._SET_CONTROL_NORMAL(0, 145, 1.0)
-            util.yield(250)
+            ENTITY.SET_ENTITY_COORDS_NO_OFFSET(user, pos, false, false, false)
+            repeat
+                util.yield()
+            until PED.GET_PED_PARACHUTE_STATE(user) == 0
             PED.FORCE_PED_TO_OPEN_PARACHUTE(user)
-            util.yield(1500)
+            util.yield(50)
+            TASK.CLEAR_PED_TASKS(user)
+            util.yield(50)
+            PED.FORCE_PED_TO_OPEN_PARACHUTE(user)
+            repeat
+                util.yield()
+            until PED.GET_PED_PARACHUTE_STATE(user) ~= 1
+            pcall(TASK.CLEAR_PED_TASKS_IMMEDIATELY, user)
+            PLAYER._CLEAR_PLAYER_RESERVE_PARACHUTE_MODEL_OVERRIDE(players.user())
+            pcall(ENTITY.SET_ENTITY_COORDS, user, old_pos, false, false)
         end)
-        PLAYER._CLEAR_PLAYER_RESERVE_PARACHUTE_MODEL_OVERRIDE(players.user())
-        ENTITY.SET_ENTITY_COORDS(user, old_pos, false, false)
-        menu.trigger_commands("anticrashcam off")
     end)
 
     menu.action(crashes, "Linus Crash Tipps", {}, "", function()
@@ -1646,6 +1998,61 @@ function PlayerlistFeatures(pid)
         util.trigger_script_event(1 << pid, {495813132, pid, 0, 0, -12988, -99097, 0})
         util.trigger_script_event(1 << pid, {495813132, pid, -4640169, 0, 0, 0, -36565476, -53105203})
         util.trigger_script_event(1 << pid, {495813132, pid,  0, 1, 23135423, 3, 3, 4, 827870001, 5, 2022580431, 6, -918761645, 7, 1754244778, 8, 827870001, 9, 17})
+    end)
+
+    local krossekrabbe = menu.list(crashes, "Das Krosse Krabbe Spezial", {}, "")
+    menu.divider(krossekrabbe, "Athego's Script [DEV] - Das Krosse Krabbe Spezial")
+
+    local peds = 5
+    menu.slider(krossekrabbe, "Anzahl der Peds", {}, "", 1, 10, 5, 1, function(amount)
+        peds = amount
+    end)
+
+    local crash_ents = {}
+    local crash_toggle = false
+    menu.toggle(krossekrabbe, "Mach das Lustige", {}, "", function(val)
+        crash_toggle = val
+        BlockSyncs(pid, function()
+            if val then
+                local number_of_peds = peds
+                local ped_mdl = util.joaat("ig_siemonyetarian")
+                local ply_ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+                local ped_pos = players.get_position(pid)
+                ped_pos.z += 3
+                request_model(ped_mdl)
+                for i = 1, number_of_peds do
+                    local ped = entities.create_ped(26, ped_mdl, ped_pos, 0)
+                    crash_ents[i] = ped
+                    PED.SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true)
+                    TASK.TASK_SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true)
+                    ENTITY.SET_ENTITY_INVINCIBLE(ped, true)
+                    ENTITY.SET_ENTITY_VISIBLE(ped, false)
+                end
+                repeat
+                    for k, ped in crash_ents do
+                        TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
+                        TASK.TASK_START_SCENARIO_IN_PLACE(ped, "PROP_HUMAN_BBQ", 0, false)
+                    end
+                    for k, v in entities.get_all_objects_as_pointers() do
+                        if entities.get_model_hash(v) == util.joaat("prop_fish_slice_01") then
+                            entities.delete_by_pointer(v)
+                        end
+                    end
+                    util.yield_once()
+                    util.yield_once()
+                until not (crash_toggle and players.exists(pid))
+                crash_toggle = false
+                for k, obj in crash_ents do
+                    entities.delete_by_handle(obj)
+                end
+                crash_ents = {}
+            else
+                for k, obj in crash_ents do
+                    entities.delete_by_handle(obj)
+                end
+                crash_ents = {}
+            end
+        end)
     end)
 
 end
@@ -2046,16 +2453,40 @@ end)
 
 ---------------------
 ---------------------
--- Anti Oppressor
+-- Anti Fahrzeuge
 ---------------------
 ---------------------
 
-local antioppOpt <const> = menu.list(menu.my_root(), "Anti Oppressor", {}, "") --Erstellt die Liste
-	menu.divider(antioppOpt, "Athego's Script [DEV] - Anti Oppressor") --Name der Liste
+local antifahrzeuge <const> = menu.list(menu.my_root(), "Anti Fahrzeuge", {}, "")
+menu.divider(antifahrzeuge, "Athego's Script [DEV] - Anti Fahrzeuge")
+
+---------------------
+---------------------
+-- Anti Fahrzeug/Anti Opressor
+---------------------
+---------------------
+
+local antioppOpt <const> = menu.list(antifahrzeuge, "Anti Oppressor", {}, "") --Erstellt die Liste
+menu.divider(antioppOpt, "Athego's Script [DEV] - Anti Oppressor") --Name der Liste
 
 antioppressor = false
 menu.toggle(antioppOpt, "Anti Oppressor", {""}, "Lässt keine Oppressor mehr in der Lobby zu und löscht diese.", function (on)
     antioppressor = on
+    mod_uses("player", if on then 1 else -1)
+end)
+
+---------------------
+---------------------
+-- Anti Fahrzeug/Anti Jet
+---------------------
+---------------------
+
+local antioppOpt <const> = menu.list(antifahrzeuge, "Anti Jet", {}, "") --Erstellt die Liste
+menu.divider(antioppOpt, "Athego's Script [DEV] - Anti Jet") --Name der Liste
+
+antijet = false
+menu.toggle(antioppOpt, "Anti Jet", {""}, "Lässt keine Jet's mehr in der Lobby zu und löscht diese.", function (on)
+    antijet = on
     mod_uses("player", if on then 1 else -1)
 end)
 
@@ -2078,7 +2509,10 @@ else
     util.stop_script()
 end
 
-save_loadout = menu.action(customloadoutOpt, "Loadout speichern", {}, "Speichert alle aktuell ausgerüsteten Waffen und Aufsätze um sie in Zukunft zu laden.",
+local save_loadout_list = menu.list(customloadoutOpt, "Loadout speichern", {}, "")
+menu.divider(save_loadout_list, "Athego's Script [DEV] - Loadout speichern")
+
+save_loadout = menu.action(save_loadout_list, "Loadout speichern", {}, "Speichert alle aktuell ausgerüsteten Waffen und Aufsätze um sie in Zukunft zu laden.",
 	function()
 		util.toast("[Athego's Script] Loadout wird gespeichert...")
         util.log("[Athego's Script] Loadout wird gespeichert...")
@@ -2303,8 +2737,21 @@ players_thread = util.create_thread(function (thr)
                       local hash2 = util.joaat("oppressor2")
                       if VEHICLE.IS_VEHICLE_MODEL(vehicle, hash) or VEHICLE.IS_VEHICLE_MODEL(vehicle, hash2) then
                         entities.delete(vehicle)
-                        util.toast("[Athego's Script] Oppressor-Nutzer gefunden: " .. PLAYER.GET_PLAYER_NAME(pid) .. "\nLösche sein Oppressor")
-                        util.log("[Athego's Script] Oppressor gefunden\n Lösche die Oppressor")
+                        util.toast("[Athego's Script]\nOppressor-Nutzer gefunden: " .. PLAYER.GET_PLAYER_NAME(pid) .. "\nLösche sein Oppressor")
+                        util.log("[Athego's Script]Oppressor-Nutzer gefunden: " .. PLAYER.GET_PLAYER_NAME(pid) .. "Lösche sein Oppressor")
+                      end
+                    end
+                end
+                if antijet then
+                    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+                    local vehicle = PED.GET_VEHICLE_PED_IS_IN(ped, true)
+                    if vehicle ~= 0 then
+                      local hash = util.joaat("hydra")
+                      local hash2 = util.joaat("lazer")
+                      if VEHICLE.IS_VEHICLE_MODEL(vehicle, hash) or VEHICLE.IS_VEHICLE_MODEL(vehicle, hash2) then
+                        entities.delete(vehicle)
+                        util.toast("[Athego's Script]\nJet-Nutzer gefunden: " .. PLAYER.GET_PLAYER_NAME(pid) .. "\nLösche den Jet")
+                        util.log("[Athego's Script] Jet-Nutzer gefunden: " .. PLAYER.GET_PLAYER_NAME(pid) .. "Lösche den Jet")
                       end
                     end
                 end
