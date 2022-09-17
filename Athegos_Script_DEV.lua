@@ -3,11 +3,11 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.71")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.72")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.71
+local localVer = 1.72
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -1152,7 +1152,7 @@ if online_v > ocoded_for then
 end
 
 --Menü Divider
-menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.7")
+menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.72")
 local self <const> = menu.list(menu.my_root(), "Self", {}, "")
     menu.divider(self, "Athego's Script [DEV] - Self")
 local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
@@ -1221,25 +1221,30 @@ function PlayerlistFeatures(pid)
     local trollingOpt <const> = menu.list(playerr, "Trolling", {}, "") --Erstellt die Liste
 	menu.divider(trollingOpt, "Athego's Script [DEV] - Trolling") --Name der Liste
 
-    menu.toggle_loop(trollingOpt, "Water Loop", {}, "", function()
+    local explo_player_list = menu.list(trollingOpt, "Explosions", {}, "")
+    menu.divider(explo_player_list, "Athego's Script [DEV] - Explosions")
+
+    menu.toggle_loop(explo_player_list, "Water Loop", {}, "", function()
         local target_ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local coords = ENTITY.GET_ENTITY_COORDS(target_ped)
 		FIRE.ADD_EXPLOSION(coords['x'], coords['y'], coords['z'], 13, 1.0, true, false, 0.0)
 	end)
 
-	menu.toggle_loop(trollingOpt, "Water Loop invisible", {}, "", function()
+	menu.toggle_loop(explo_player_list, "Water Loop invisible", {}, "", function()
         local target_ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local coords = ENTITY.GET_ENTITY_COORDS(target_ped)
 		FIRE.ADD_EXPLOSION(coords['x'], coords['y'], coords['z'], 13, 1.0, true, true, 0.0)
 	end)
 
-    menu.toggle_loop(trollingOpt, "Random explosion loop", {"randomexplosions"}, "", function(on)
+    menu.toggle_loop(explo_player_list, "Random explosion loop", {"randomexplosions"}, "", function(on)
         local target_ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local coords = ENTITY.GET_ENTITY_COORDS(target_ped)
         FIRE.ADD_EXPLOSION(coords['x'], coords['y'], coords['z'], math.random(0, 82), 1.0, true, false, 0.0)
     end)
 
     local freeze = menu.list(trollingOpt, "Spieler einfrieren", {}, "")
+    menu.divider(freeze, "Athego's Script [DEV] - Spieler einfrieren")
+
     player_toggle_loop(freeze, pid, "Hard Freeze", {}, "", function()
         util.trigger_script_event(1 << pid, {0x4868BC31, pid, 0, 0, 0, 0, 0})
         util.yield(500)
@@ -1248,6 +1253,32 @@ function PlayerlistFeatures(pid)
     player_toggle_loop(freeze, pid, "Flackerndes einfrieren", {}, "", function()
         util.trigger_script_event(1 << pid, {0x7EFC3716, pid, 0, 1, 0, 0})
         util.yield(500)
+    end)
+
+    player_toggle_loop(trollingOpt, pid, "Sound Spam", {}, "", function()
+        util.trigger_script_event(1 << pid, {0x4246AA25, pid, math.random(1, 0x6)})
+        util.yield()
+    end)
+
+    menu.action(trollingOpt, "Apartment zustand erzwingen", {}, "Wird beim rejoinen aufgehoben. Spieler musst in einem Apartment sein", function(s)
+        if players.is_in_interior(pid) then
+            util.trigger_script_event(1 << pid, {0xB031BD16, pid, pid, pid, pid, math.random(int_min, int_max), pid})
+        else
+            util.toast("[Athego's Script] Spieler ist in keinem Apartment")
+        end
+    end)
+
+    menu.action(trollingOpt, "Wer hat gefragt?", {}, "", function()
+        local radar = util.joaat("prop_air_bigradar")
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        request_model(radar)
+
+        local radar_dish = entities.create_object(radar, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED(pid), 0, 20, -3))
+        NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(radar_dish)
+        chat.send_message("[Athego's Script] Benutzt NASA Sateliten um zu schauen wer gefragt hat", false, true, true)
+        util.yield(10000)
+        entities.delete_by_handle(radar_dish)
     end)
 
     ---------------------
@@ -1303,14 +1334,14 @@ function PlayerlistFeatures(pid)
         while glitchPlayer do
             local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
             local pos = ENTITY.GET_ENTITY_COORDS(ped, false)
-            if v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_position(pid)) > 400.0 
-            and v3.distance(pos, players.get_cam_pos(players.user())) > 400.0 then
-                util.toast("Spieler ist außerhalb des Rendering bereiches!")
+            if v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_position(pid)) > 1000.0 
+            and v3.distance(pos, players.get_cam_pos(players.user())) > 1000.0 then
+                util.toast("[Athego's Script] Spieler ist außerhalb des Rendering bereiches!")
                 menu.set_value(glitchPlayer_toggle, false);
             break end
 
             if not players.exists(pid) then 
-                util.toast("Spieler existiert nicht!")
+                util.toast("[Athego's Script] Spieler existiert nicht!")
                 menu.set_value(glitchPlayer_toggle, false);
             break end
             local glitch_hash = object_hash
@@ -1327,7 +1358,7 @@ function PlayerlistFeatures(pid)
             util.yield(delay)
             entities.delete_by_handle(stupid_object)
             entities.delete_by_handle(glitch_vehicle)
-            util.yield(delay)    
+            util.yield(delay)   
         end
     end)
 
@@ -1345,24 +1376,24 @@ function PlayerlistFeatures(pid)
         request_model(object_hash)
         
         while glitchVeh do
-            if v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_position(pid)) > 400.0 
-            and v3.distance(pos, players.get_cam_pos(players.user())) > 400.0 then
-                util.toast("Spieler ist außerhalb des Rendering bereiches!")
+            if v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_position(pid)) > 1000.0 
+            and v3.distance(pos, players.get_cam_pos(players.user())) > 1000.0 then
+                util.toast("[Athego's Script] Spieler ist außerhalb des Rendering bereiches!")
                 menu.set_value(glitchVehCmd, false);
             break end
 
             if not players.exists(pid) then 
-                util.toast("Spieler existiert nicht!")
+                util.toast("[Athego's Script] Spieler existiert nicht!")
                 menu.set_value(glitchVehCmd, false);
             break end
 
             if not PED.IS_PED_IN_VEHICLE(ped, player_veh, false) then 
-                util.toast("Spieler ist in keinem Fahrzeug!")
+                util.toast("[Athego's Script] Spieler ist in keinem Fahrzeug!")
                 menu.set_value(glitchVehCmd, false);
             break end
 
             if not VEHICLE.ARE_ANY_VEHICLE_SEATS_FREE(player_veh) then
-                util.toast("Kein freier Sitz mehr im Fahrzeug!")
+                util.toast("[Athego's Script] Kein freier Sitz mehr im Fahrzeug!")
                 menu.set_value(glitchVehCmd, false);
             break end
 
@@ -1399,7 +1430,7 @@ function PlayerlistFeatures(pid)
             if glitched_ped ~= nil then -- added a 2nd stage here because it didnt want to delete sometimes, this solved that lol.
                 entities.delete_by_handle(glitched_ped) 
             end
-            if glitch_obj ~= nil then 
+            if glitch_obj ~= nil then
                 entities.delete_by_handle(glitch_obj)
             end
         end
@@ -1497,7 +1528,10 @@ function PlayerlistFeatures(pid)
     local crashes = menu.list(player_removals, "Crashes", {}, "")
     menu.divider(crashes, "Athego's Script [DEV] - Crashes")
 
-    menu.action(crashes, "Perle der Natur", {"nature"}, "", function()
+    local nature = menu.list(crashes, "Perle der Natur", {}, "")
+    menu.divider(nature, "Athego's Script [DEV] - Perle der Natur")
+
+    menu.action(nature, "Perle der Natur v1", {""}, "", function()
         local user = players.user()
         local user_ped = players.user_ped()
         local pos = players.get_position(user)
@@ -1518,6 +1552,29 @@ function PlayerlistFeatures(pid)
             NETWORK.NETWORK_RESURRECT_LOCAL_PLAYER(pos, 0, false, false, 0)
             PLAYER.CLEAR_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(user)
             menu.trigger_commands("invisibility off")
+        end)
+    end)
+
+    menu.action(nature, "Perle der Natur v2", {""}, "", function()
+        local user = players.user()
+        local user_ped = players.user_ped()
+        local pos = players.get_position(user)
+        BlockSyncs(pid, function() 
+            util.yield(100)
+            PLAYER.SET_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(players.user(), 0xFBF7D21F)
+            WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user_ped, 0xFBAB5776, 100, false)
+            TASK.TASK_PARACHUTE_TO_TARGET(user_ped, pos.x, pos.y, pos.z)
+            util.yield()
+            TASK.CLEAR_PED_TASKS_IMMEDIATELY(user_ped)
+            util.yield(250)
+            WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user_ped, 0xFBAB5776, 100, false)
+            PLAYER.CLEAR_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(user)
+            util.yield(1000)
+            for i = 1, 5 do
+                util.spoof_script("freemode", SYSTEM.WAIT)
+            end
+            ENTITY.SET_ENTITY_HEALTH(user_ped, 0)
+            NETWORK.NETWORK_RESURRECT_LOCAL_PLAYER(pos, 0, false, false, 0)
         end)
     end)
 
@@ -1546,7 +1603,33 @@ function PlayerlistFeatures(pid)
         end)
     end)
 
-    menu.action(crashes, "Linus Crash Tips", {}, "", function()
+    menu.action(crashes, "Lil Yachty", {}, "", function()
+        local user = players.user_ped()
+        local pos = players.get_position(pid)
+        local old_pos = ENTITY.GET_ENTITY_COORDS(user, false)
+        local mdl = util.joaat("apa_mp_apa_yacht")
+        menu.trigger_commands("anticrashcam on")
+        BlockSyncs(pid, function()
+            WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user, 0xFBAB5776, 100, false)
+            PLAYER.SET_PLAYER_HAS_RESERVE_PARACHUTE(players.user())
+            PLAYER._SET_PLAYER_RESERVE_PARACHUTE_MODEL_OVERRIDE(players.user(), mdl)
+            util.yield(100)
+            ENTITY.SET_ENTITY_COORDS_NO_OFFSET(user, pos.x, pos.y, pos.z + 300, false, false, false)
+            util.yield(1000)
+            PED.FORCE_PED_TO_OPEN_PARACHUTE(user)
+            util.yield(250)
+            TASK.CLEAR_PED_TASKS_IMMEDIATELY(user)
+            PAD._SET_CONTROL_NORMAL(0, 145, 1.0)
+            util.yield(250)
+            PED.FORCE_PED_TO_OPEN_PARACHUTE(user)
+            util.yield(1500)
+        end)
+        PLAYER._CLEAR_PLAYER_RESERVE_PARACHUTE_MODEL_OVERRIDE(players.user())
+        ENTITY.SET_ENTITY_COORDS(user, old_pos, false, false)
+        menu.trigger_commands("anticrashcam off")
+    end)
+
+    menu.action(crashes, "Linus Crash Tipps", {}, "", function()
         local int_min = -2147483647
         local int_max = 2147483647
         for i = 1, 150 do
@@ -1579,8 +1662,8 @@ players.on_join(function(pid)
 
         if detection_athego then
             if players.get_rockstar_id(pid) == 63631473 then
-                util.toast("[Athego's Skript] " .. players.get_name(pid) .. "ist entweder der echte Athego oder es Spooft nur.")
-                util.log("[Athego's Skript] " .. players.get_name(pid) .. "ist entweder der echte Athego oder es Spooft nur.")
+                util.toast("[Athego's Skript] " .. players.get_name(pid) .. "ist entweder der echte Athego oder er Spooft nur.")
+                util.log("[Athego's Skript] " .. players.get_name(pid) .. "ist entweder der echte Athego oder er Spooft nur.")
             end
         end
 
@@ -1780,7 +1863,8 @@ menu.toggle_loop(detections, "Gemoddetes Fahrzeug", {}, "Erkennt ob jemand ein G
         local modelHash = players.get_vehicle_model(pid)
         for i , name in ipairs(modded_vehicles) do
             if modelHash == util.joaat(name) then
-                util.toast(players.get_name(pid) .. " fährt ein gemoddetes Fahrzeug")
+                util.toast("[Athego's Script] " .. players.get_name(pid) .. " fährt ein gemoddetes Fahrzeug")
+                util.log("[Athego's Script] " .. players.get_name(pid) .. " fährt ein gemoddetes Fahrzeug")
                 break
             end
         end
@@ -1792,7 +1876,8 @@ menu.toggle_loop(detections, "Nicht veröffentliches Fahrzeug", {}, "Erkennt ob 
         local modelHash = players.get_vehicle_model(pid)
         for i, name in ipairs(unreleased_vehicles) do
             if modelHash == util.joaat(name) then
-                util.draw_debug_text(players.get_name(pid) .. " fährt ein unveröffentliches Fahrzeug")
+                util.draw_debug_text("[Athego's Script] " .. players.get_name(pid) .. " fährt ein unveröffentliches Fahrzeug")
+                util.log("[Athego's Script] " .. players.get_name(pid) .. " fährt ein unveröffentliches Fahrzeug")
             end
         end
     end
@@ -1804,7 +1889,8 @@ menu.toggle_loop(detections, "Gemoddete Waffe", {}, "Erkennt ob jemand eine Waff
         for i, hash in ipairs(modded_weapons) do
             local weapon_hash = util.joaat(hash)
             if WEAPON.HAS_PED_GOT_WEAPON(ped, weapon_hash, false) and (WEAPON.IS_PED_ARMED(ped, 7) or TASK.GET_IS_TASK_ACTIVE(ped, 8) or TASK.GET_IS_TASK_ACTIVE(ped, 9)) then
-                util.toast(players.get_name(pid) .. " benutzt eine Gemoddete Waffe")
+                util.toast("[Athego's Script] " .. players.get_name(pid) .. " benutzt eine Gemoddete Waffe")
+                util.log("[Athego's Script] " .. players.get_name(pid) .. " benutzt eine Gemoddete Waffe")
                 break
             end
         end
@@ -1818,7 +1904,8 @@ menu.toggle_loop(detections, "Super Drive", {}, "Erkennt ob jemand Super Drive b
         local veh_speed = (ENTITY.GET_ENTITY_SPEED(vehicle)* 2.236936)
         local class = VEHICLE.GET_VEHICLE_CLASS(vehicle)
         if class ~= 15 and class ~= 16 and veh_speed >= 180 and VEHICLE.GET_PED_IN_VEHICLE_SEAT(vehicle, -1) and players.get_vehicle_model(pid) ~= util.joaat("oppressor") then -- not checking opressor mk1 cus its stinky
-            util.toast(players.get_name(pid) .. " benutzt Super Drive")
+            util.toast("[Athego's Script] " .. players.get_name(pid) .. " benutzt Super Drive")
+            util.log("[Athego's Script] " .. players.get_name(pid) .. " benutzt Super Drive")
             break
         end
     end
@@ -1843,7 +1930,8 @@ menu.toggle_loop(detections, "Noclip", {}, "Erkennt ob Spieler Noclip benutzten 
         and ENTITY.GET_ENTITY_HEIGHT_ABOVE_GROUND(ped) > 5.0 and not ENTITY.IS_ENTITY_IN_AIR(ped) and entities.player_info_get_game_state(ped_ptr) == 0
         and oldpos.x ~= currentpos.x and oldpos.y ~= currentpos.y and oldpos.z ~= currentpos.z 
         and vel.x == 0.0 and vel.y == 0.0 and vel.z == 0.0 then
-            util.toast(players.get_name(pid) .. " benutzt Noclip!")
+            util.toast("[Athego's Script] " .. players.get_name(pid) .. " benutzt Noclip!")
+            util.log("[Athego's Script] " .. players.get_name(pid) .. " benutzt Noclip!")
             break
         end
     end
@@ -1856,8 +1944,27 @@ menu.toggle_loop(detections, "Zuschauen", {}, "Erkennt ob dir jemand zuguckt!", 
             if not util.is_session_transition_active() and get_transition_state(pid) ~= 0 and get_interior_player_is_in(pid) == interior
             and not NETWORK.NETWORK_IS_PLAYER_FADING(pid) and ENTITY.IS_ENTITY_VISIBLE(ped) and not PED.IS_PED_DEAD_OR_DYING(ped) then
                 if v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_cam_pos(pid)) < 15.0 and v3.distance(ENTITY.GET_ENTITY_COORDS(players.user_ped(), false), players.get_position(pid)) > 20.0 then
-                    util.toast(players.get_name(pid) .. " Is Watching You")
+                    util.toast("[Athego's Script] " .. players.get_name(pid) .. " schaut dir zu!")
+                    util.log("[Athego's Script] " .. players.get_name(pid) .. " schaut dir zu!")
                     break
+                end
+            end
+        end
+    end
+end)
+
+menu.toggle_loop(detections, "Teleport", {}, "Erkennt ob sich ein Spieler Teleportiert", function()
+    for _, pid in ipairs(players.list(false, true, true)) do
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        if not NETWORK.NETWORK_IS_PLAYER_FADING(pid) and ENTITY.IS_ENTITY_VISIBLE(ped) and not PED.IS_PED_DEAD_OR_DYING(ped) then
+            local oldpos = players.get_position(pid)
+            util.yield(1000)
+            local currentpos = players.get_position(pid)
+            for i, interior in ipairs(interior_stuff) do
+                if v3.distance(oldpos, currentpos) > 500 and oldpos.x ~= currentpos.x and oldpos.y ~= currentpos.y and oldpos.z ~= currentpos.z 
+                and get_transition_state(pid) ~= 0 and get_interior_player_is_in(pid) == interior and PLAYER.IS_PLAYER_PLAYING(pid) and player.exists(pid) then
+                    util.toast("[Athego's Script] " .. players.get_name(pid) .. " hat sich Teleportiert")
+                    util.log("[Athego's Script] " .. players.get_name(pid) .. " hat sich Teleportiert")
                 end
             end
         end
@@ -2215,6 +2322,7 @@ while true do
         util.yield(10000) --- wait until even the clownish animation on spawn is definitely finished..
         if do_autoload then
             menu.trigger_commands("loadloadout")
+            util.toast("[Athego's Script] Autoload des Loadout's")
         else
             regen_menu()
         end
