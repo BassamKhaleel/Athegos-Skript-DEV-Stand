@@ -3,12 +3,12 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
-util.require_natives(1660775568)
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.82")
+--util.require_natives(1660775568)
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.83")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.82
+local localVer = 1.83
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -415,7 +415,7 @@ if online_v > ocoded_for then
 end
 
 --Menü Divider
-menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.82")
+menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.83")
 local self <const> = menu.list(menu.my_root(), "Self", {}, "")
     menu.divider(self, "Athego's Script [DEV] - Self")
 local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
@@ -1399,7 +1399,7 @@ local pickups_toggle = false
 local white_colour = {r = 1.0, g = 1.0, b = 1.0, a = 1.0}
 
 
-local info_colour = menu.list(overlay, 'Info Overlay Colour', {}, '')
+local info_colour = menu.list(overlay, 'Overlay Farbe', {}, '')
 
 UI = {}
 
@@ -1432,7 +1432,7 @@ UI.new = function()
 
     local highlight_colour = {r=1,g=0,b=0,a=1}
     menu.rainbow(
-        menu.colour(info_colour, "Info Overlay Colour", {"infocolour"}, "", highlight_colour, true, function(val)
+        menu.colour(info_colour, "Overlay Farbe", {"overlayfarbe"}, "", highlight_colour, true, function(val)
             highlight_colour = val
         end)
     )
@@ -2122,16 +2122,16 @@ local regionDetect = {
     [0]  = {kick = false, lang = "English"},
     [1]  = {kick = false, lang = "Französisch"},
     [2]  = {kick = false, lang = "Deutsch"},
-    [3]  = {kick = false, lang = "Italian"},
+    [3]  = {kick = false, lang = "Italienisch"},
     [4]  = {kick = false, lang = "Spanisch"},
-    [5]  = {kick = false, lang = "Brazilian"},
-    [6]  = {kick = false, lang = "Polish"},
-    [7]  = {kick = false, lang = "Russian"},
-    [8]  = {kick = false, lang = "Korean"},
-    [9]  = {kick = false, lang = "Chinese Traditional"},
-    [10] = {kick = false, lang = "Japanese"},
-    [11] = {kick = false, lang = "Mexican"},
-    [12] = {kick = false, lang = "Chinese Simplified"},
+    [5]  = {kick = false, lang = "Brasilianisch"},
+    [6]  = {kick = false, lang = "Polnisch"},
+    [7]  = {kick = false, lang = "Russisch"},
+    [8]  = {kick = false, lang = "Koreanisch"},
+    [9]  = {kick = false, lang = "Chinesisch Traditionell"},
+    [10] = {kick = false, lang = "Japanisch"},
+    [11] = {kick = false, lang = "Mexikanisch"},
+    [12] = {kick = false, lang = "Chinesisch Vereinfacht"},
 }
 
 ---------------------
@@ -2145,27 +2145,27 @@ menu.toggle(info_toggles, "Session Host Toggle", {"SessionHostToggle"}, "", func
     session_host_toggle = on
     util.yield()
 end)
-menu.toggle(info_toggles, "Session Script Host Toggle", {"SessionScriptHostToggle"}, "", function(on)
+menu.toggle(info_toggles, "Script Host Toggle", {"SessionScriptHostToggle"}, "", function(on)
     session_script_host_toggle = on
     util.yield()
 end)
-menu.toggle(info_toggles, "Players Toggle", {"PlayersToggle"}, "", function(on)
+menu.toggle(info_toggles, "Spieler Toggle", {"PlayersToggle"}, "", function(on)
     players_toggle = on
     util.yield()
 end)
-menu.toggle(info_toggles, "Modders Toggle", {"ModdersToggle"}, "", function(on)
+menu.toggle(info_toggles, "Modder Toggle", {"ModdersToggle"}, "", function(on)
     modders_toggle = on
     util.yield()
 end)
-menu.toggle(info_toggles, "Friends Toggle", {"FriendsToggle"}, "", function(on)
+menu.toggle(info_toggles, "Freunde Toggle", {"FriendsToggle"}, "", function(on)
     friends_toggle = on
     util.yield()
 end)
-menu.toggle(info_toggles, "Strangers Toggle", {"StrangersToggle"}, "", function(on)
+menu.toggle(info_toggles, "Unbekannte Toggle", {"StrangersToggle"}, "", function(on)
     stranger_toggle = on
     util.yield()
 end)
-menu.toggle(info_toggles, "Time Toggle", {"TimeToggle"}, "", function(on)
+menu.toggle(info_toggles, "Zeit Toggle", {"TimeToggle"}, "", function(on)
     time_toggle = on
     util.yield()
 end)
@@ -2189,7 +2189,7 @@ menu.toggle(info_toggles, "Pickups Toggle", {"PickupsToggle"}, "", function(on)
     pickups_toggle = on
     util.yield()
 end)
-menu.toggle(info_toggles, "Empty Toggle", {"EmptyToggle"}, "A toggle to create some empty space where a session code can be put as an example.", function(on)
+menu.toggle(info_toggles, "Leerer Toggle", {"LeererToggle"}, "Ein leerer Toogle wo zb der Session Code platziert werden kann.", function(on)
     empty_toggle = on
     util.yield()
 end)
@@ -2198,25 +2198,25 @@ end)
 local x = 0.17 --posX
 local y = 0.705 --posY
 
-menu.slider(info_pos, "Move X", {"xcoord"}, "Move the info overlay x coordinates.", -100, 100, 17, 1, function(datax) --after help text : 0 is min, 100 is max, 50 is default and 1 is step
+menu.slider(info_pos, "X Achse", {"xcoord"}, "Bewege die X Achse des Info Overlays.", -100, 100, 17, 1, function(datax) --after help text : 0 is min, 100 is max, 50 is default and 1 is step
     x=datax/100 -- put the value at 0.xx (ex : 50/100 = 0.5 default position)
 end)
-menu.slider(info_pos, "Move Y", {"ycoord"}, "Move the info overlay y coordinates.", -100, 100, 70, 1, function(datay) --after help text : 0 is min, 100 is max, 50 is default and 1 is step
+menu.slider(info_pos, "Y Achse", {"ycoord"}, "Bewege die Y Achse des Info Overlays", -100, 100, 70, 1, function(datay) --after help text : 0 is min, 100 is max, 50 is default and 1 is step
     y=datay/100 -- put the value at 0.xx (ex : 50/100 = 0.5 default position)
 end)
 
-menu.toggle(overlay, "Players Overlay", {"PlayerOverlay"}, "A nice player overlay",
+menu.toggle(overlay, "Player Overlay", {"PlayerOverlay"}, "Ein Schönes Player Overlay",
     function(state)
         UItoggle = state
         while UItoggle do
             local player = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(players.user())
-            myUI.begin("      Players      ", 0.02, 0.02, "kpjbgkzjsdbg")
+            myUI.begin("      Spieler      ", 0.02, 0.02, "kpjbgkzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
                 myUI.label(players.get_name(pid),"")
             end
             myUI.finish()
-            myUI.begin("Rank", 0.119, 0.02, "kpj2bdg2kzjsdbg")
+            myUI.begin("Level", 0.118, 0.02, "kpj2bdg2kzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
                 myUI.label(players.get_rank(pid),"")
@@ -2242,19 +2242,19 @@ menu.toggle(overlay, "Players Overlay", {"PlayerOverlay"}, "A nice player overla
                     end
             end
             myUI.finish()
-            myUI.begin(" Language ", 0.299, 0.02, "kpjbdgkzjsdbg")
+            myUI.begin(" Sprache ", 0.299, 0.02, "kpjbdgkzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
                myUI.label(regionDetect[players.get_language(pid)].lang,"")
             end
             myUI.finish()
-            myUI.begin("Input", 0.383, 0.02, "kpj2bdgd2hkzjsdbg")
+            myUI.begin("Eingabe", 0.374, 0.02, "kpj2bdgd2hkzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
             if players.is_using_controller(pid) then
 				myUI.label("Controller","")
 				else
-                myUI.label("KBM","")
+                myUI.label("Tastatur","")
 				end
             end
             myUI.finish()
@@ -2268,7 +2268,7 @@ menu.toggle(overlay, "Players Overlay", {"PlayerOverlay"}, "A nice player overla
 				end
             end
             myUI.finish()
-            myUI.begin("Vehicle", 0.535, 0.02, "kpfj2bdgd2hkzsdbg")
+            myUI.begin("Fahrzeug", 0.535, 0.02, "kpfj2bdgd2hkzsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
 				playerinfo1 = players.get_vehicle_model(pid)
@@ -2297,7 +2297,7 @@ menu.toggle(overlay, "Players Overlay", {"PlayerOverlay"}, "A nice player overla
 ---------------------
 ---------------------
 
-menu.toggle(overlay, "Info Overlay", {"InfoOverlay"}, "Info overlay in a cute box", function(state)
+menu.toggle(overlay, "Info Overlay", {"InfoOverlay"}, "Info Overlay in einer schönen Box", function(state)
     UItoggle2 = state
     while UItoggle2 do
         --start the gui
@@ -2341,27 +2341,27 @@ menu.toggle(overlay, "Info Overlay", {"InfoOverlay"}, "Info overlay in a cute bo
 
         --player count row
         if players_toggle then
-            myUI.label("Players: ", playercount, white_colour)
+            myUI.label("Spieler: ", playercount, white_colour)
         end
 
         --modder count row
         if modders_toggle then
-            myUI.label("Modders: ", moddercount, white_colour)
+            myUI.label("Modder: ", moddercount, white_colour)
         end
 
         --friend count row
         if friends_toggle then
-            myUI.label("Friends: ", friendcount, white_colour)
+            myUI.label("Freunde: ", friendcount, white_colour)
         end
 
         --stranger count row
         if stranger_toggle then
-            myUI.label("Strangers: ", strangercount, white_colour)
+            myUI.label("Unbekannte: ", strangercount, white_colour)
         end
 
         --time row
         if time_toggle then
-            myUI.label("Time: ", os.date("%X"), white_colour)
+            myUI.label("Zeit: ", os.date("%X"), white_colour)
         end
 
         --fps overlay row
