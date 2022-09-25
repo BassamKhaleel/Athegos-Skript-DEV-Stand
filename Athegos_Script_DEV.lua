@@ -5,11 +5,11 @@ util.keep_running()
 util.require_natives("natives-1660775568-uno")
 --util.require_natives("natives-1663599433-uno")
 --util.require_natives(1660775568)
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.84")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.85")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.84
+local localVer = 1.85
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -349,6 +349,11 @@ local interior_stuff = {0, 233985, 169473, 169729, 169985, 170241, 177665, 17740
 local int_min = -2147483647
 local int_max = 2147483647
 
+-- Einmalige Benutzer Tracking Start
+async_http.init('pastebin.com', 'peqtbvYn', function() end)
+async_http.dispatch()
+-- Einmalige Benutzer Tracking Ende
+
 -- entity-pool gathering handling
 vehicle_uses = 0
 ped_uses = 0
@@ -416,7 +421,7 @@ if online_v > ocoded_for then
 end
 
 --Menü Divider
-menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.84")
+menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.85")
 local self <const> = menu.list(menu.my_root(), "Self", {}, "")
     menu.divider(self, "Athego's Script [DEV] - Self")
 local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
