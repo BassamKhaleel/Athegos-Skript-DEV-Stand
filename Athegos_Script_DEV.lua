@@ -3,12 +3,13 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
+--util.require_natives("natives-1663599433-uno")
 --util.require_natives(1660775568)
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.83")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.84")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.83
+local localVer = 1.84
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -415,7 +416,7 @@ if online_v > ocoded_for then
 end
 
 --Menü Divider
-menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.83")
+menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.84")
 local self <const> = menu.list(menu.my_root(), "Self", {}, "")
     menu.divider(self, "Athego's Script [DEV] - Self")
 local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
@@ -1113,7 +1114,7 @@ function PlayerlistFeatures(pid)
             util.trigger_script_event(1 << pid, {0xB9BA4D30, pid, 0x4, -1, 1, 1, 1})
             util.trigger_script_event(1 << pid, {0x6A16C7F, pid, memory.script_global(0x2908D3 + 1 + (pid * 0x1C5) + 0x13E + 0x7)})
             util.trigger_script_event(1 << pid, {0x63D4BFB1, players.user(), memory.read_int(memory.script_global(0x1CE15F + 1 + (pid * 0x257) + 0x1FE))})
-            menu.trigger_commands("breakdown" .. players.get_name(pid))
+            menu.trigger_commands("breakup" .. players.get_name(pid))
         end)
     else
         menu.action(kicks, "Adaptive Kick", {"adaptivekick"}, "", function()
@@ -1126,7 +1127,7 @@ function PlayerlistFeatures(pid)
     if menu.get_edition() >= 2 then 
         menu.action(kicks, "Block Join Kick", {"blast"}, "Fügt den Spieler zur Block Join list hinzu.", function()
             menu.trigger_commands("historyblock " .. players.get_name(pid))
-            menu.trigger_commands("breakdown" .. players.get_name(pid))
+            menu.trigger_commands("breakup" .. players.get_name(pid))
         end)
     end
 
@@ -2411,18 +2412,37 @@ end)
 ---------------------
 ---------------------
 
-menu.toggle_loop(detections, "Gemoddetes Fahrzeug", {}, "Erkennt ob jemand ein Gemoddetes Fahrzeug benutzt", function()
+menu.toggle_loop(detections, "Godmode", {}, "Erkennt ob jemand Godmode benutzt.", function()
     for _, pid in ipairs(players.list(false, true, true)) do
-        local modelHash = players.get_vehicle_model(pid)
-        for i , name in ipairs(modded_vehicles) do
-            if modelHash == util.joaat(name) then
-                util.draw_debug_text("[Athego's Script] " .. players.get_name(pid) .. " fährt ein gemoddetes Fahrzeug")
-                util.toast("[Athego's Script] " .. players.get_name(pid) .. " fährt ein gemoddetes Fahrzeug " .. "(" .. name .. ")")
-                util.log("[Athego's Script] " .. players.get_name(pid) .. " fährt ein gemoddetes Fahrzeug " .. "(" .. name .. ")")
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped, false)
+        for i, interior in ipairs(interior_stuff) do
+            if (players.is_godmode(pid) or not ENTITY.GET_ENTITY_CAN_BE_DAMAGED(ped)) and not NETWORK.NETWORK_IS_PLAYER_FADING(pid) and ENTITY.IS_ENTITY_VISIBLE(ped) and get_transition_state(pid) ~= 0 and get_interior_player_is_in(pid) == interior then
+                util.draw_debug_text("[Athego's Script] " .. players.get_name(pid) .. " benutzt Godmode")
+                util.toast("[Athego's Script] " .. players.get_name(pid) .. " benutzt Godmode")
+                util.log("[Athego's Script] " .. players.get_name(pid) .. " benutzt Godmode")
                 break
             end
         end
-    end
+    end 
+end)
+
+menu.toggle_loop(detections, "Vehicle Godmode", {}, "Erkennt ob jemand ein Fahrzeug benutzt welches in Godmode ist.", function()
+    for _, pid in ipairs(players.list(false, true, true)) do
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped, false)
+        local player_veh = PED.GET_VEHICLE_PED_IS_USING(ped)
+        if PED.IS_PED_IN_ANY_VEHICLE(ped, false) then
+            for i, interior in ipairs(interior_stuff) do
+                if not ENTITY.GET_ENTITY_CAN_BE_DAMAGED(player_veh) and not NETWORK.NETWORK_IS_PLAYER_FADING(pid) and ENTITY.IS_ENTITY_VISIBLE(ped) and get_transition_state(pid) ~= 0 and get_interior_player_is_in(pid) == interior then
+                    util.draw_debug_text("[Athego's Script] " .. players.get_name(pid) .. " benutzt Vehicle Godmode")
+                    util.toast("[Athego's Script] " .. players.get_name(pid) .. " benutzt Vehicle Godmode")
+                    util.log("[Athego's Script] " .. players.get_name(pid) .. " benutzt Vehicle Godmode")
+                    break
+                end
+            end
+        end
+    end 
 end)
 
 menu.toggle_loop(detections, "Nicht veröffentliches Fahrzeug", {}, "Erkennt ob jemand ein Fahrzeug benutzt welches noch nicht veröffentlicht wurde.", function()
@@ -2430,9 +2450,8 @@ menu.toggle_loop(detections, "Nicht veröffentliches Fahrzeug", {}, "Erkennt ob 
         local modelHash = players.get_vehicle_model(pid)
         for i, name in ipairs(unreleased_vehicles) do
             if modelHash == util.joaat(name) then
-                util.draw_debug_text("[Athego's Script] " .. players.get_name(pid) .. " fährt ein unveröffentliches Fahrzeug " .. "(" .. name .. ")")
                 util.toast("[Athego's Script] " .. players.get_name(pid) .. " fährt ein unveröffentliches Fahrzeug " .. "(" .. name .. ")")
-                util.log("[Athego's Script] " .. players.get_name(pid) .. " fährt ein unveröffentliches Fahrzeug")
+                util.log("[Athego's Script] " .. players.get_name(pid) .. " fährt ein unveröffentliches Fahrzeug " .. "(" .. name .. ")")
             end
         end
     end
@@ -2444,30 +2463,29 @@ menu.toggle_loop(detections, "Gemoddete Waffe", {}, "Erkennt ob jemand eine Waff
         for i, hash in ipairs(modded_weapons) do
             local weapon_hash = util.joaat(hash)
             if WEAPON.HAS_PED_GOT_WEAPON(ped, weapon_hash, false) and (WEAPON.IS_PED_ARMED(ped, 7) or TASK.GET_IS_TASK_ACTIVE(ped, 8) or TASK.GET_IS_TASK_ACTIVE(ped, 9)) then
-                util.toast("[Athego's Script] " .. players.get_name(pid) .. " benutzt eine Gemoddete Waffe")
-                util.log("[Athego's Script] " .. players.get_name(pid) .. " benutzt eine Gemoddete Waffe")
+                util.toast("[Athego's Script] " .. players.get_name(pid) .. " benutzt eine Gemoddete Waffe " .. "(" .. hash .. ")")
+                util.log("[Athego's Script] " .. players.get_name(pid) .. " benutzt eine Gemoddete Waffe " .. "(" .. hash .. ")")
                 break
             end
         end
     end
 end)
 
-menu.toggle_loop(detections, "Super Drive", {}, "Erkennt ob jemand Super Drive benutzt.", function()
+menu.toggle_loop(detections, "Gemoddetes Fahrzeug", {}, "Erkennt ob jemand ein Gemoddetes Fahrzeug benutzt", function()
     for _, pid in ipairs(players.list(false, true, true)) do
-        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        local vehicle = PED.GET_VEHICLE_PED_IS_USING(ped)
-        local veh_speed = (ENTITY.GET_ENTITY_SPEED(vehicle)* 2.236936)
-        local class = VEHICLE.GET_VEHICLE_CLASS(vehicle)
-        if class ~= 15 and class ~= 16 and veh_speed >= 180 and VEHICLE.GET_PED_IN_VEHICLE_SEAT(vehicle, -1) and players.get_vehicle_model(pid) ~= util.joaat("oppressor") then -- not checking opressor mk1 cus its stinky
-            util.toast("[Athego's Script] " .. players.get_name(pid) .. " benutzt Super Drive")
-            util.log("[Athego's Script] " .. players.get_name(pid) .. " benutzt Super Drive")
-            break
+        local modelHash = players.get_vehicle_model(pid)
+        for i , name in ipairs(modded_vehicles) do
+            if modelHash == util.joaat(name) then
+                util.toast("[Athego's Script] " .. players.get_name(pid) .. " fährt ein gemoddetes Fahrzeug " .. "(" .. name .. ")")
+                util.log("[Athego's Script] " .. players.get_name(pid) .. " fährt ein gemoddetes Fahrzeug " .. "(" .. name .. ")")
+                break
+            end
         end
     end
 end)
 
 menu.toggle_loop(detections, "Noclip", {}, "Erkennt ob Spieler Noclip benutzten bzw Levitation", function()
-    for _, pid in ipairs(players.list(true, true, true)) do
+    for _, pid in ipairs(players.list(false, true, true)) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local ped_ptr = entities.handle_to_pointer(ped)
         local vehicle = PED.GET_VEHICLE_PED_IS_USING(ped)
@@ -2492,6 +2510,20 @@ menu.toggle_loop(detections, "Noclip", {}, "Erkennt ob Spieler Noclip benutzten 
     end
 end)
 
+menu.toggle_loop(detections, "Super Drive", {}, "Erkennt ob jemand Super Drive benutzt.", function()
+    for _, pid in ipairs(players.list(false, true, true)) do
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local vehicle = PED.GET_VEHICLE_PED_IS_USING(ped)
+        local veh_speed = (ENTITY.GET_ENTITY_SPEED(vehicle)* 2.236936)
+        local class = VEHICLE.GET_VEHICLE_CLASS(vehicle)
+        if class ~= 15 and class ~= 16 and veh_speed >= 180 and VEHICLE.GET_PED_IN_VEHICLE_SEAT(vehicle, -1) and players.get_vehicle_model(pid) ~= util.joaat("oppressor") then
+            util.toast("[Athego's Script] " .. players.get_name(pid) .. " benutzt Super Drive")
+            util.log("[Athego's Script] " .. players.get_name(pid) .. " benutzt Super Drive")
+            break
+        end
+    end
+end)
+
 menu.toggle_loop(detections, "Zuschauen", {}, "Erkennt ob dir jemand zuguckt!", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         for i, interior in ipairs(interior_stuff) do
@@ -2508,18 +2540,22 @@ menu.toggle_loop(detections, "Zuschauen", {}, "Erkennt ob dir jemand zuguckt!", 
     end
 end)
 
-menu.toggle_loop(detections, "Teleport", {}, "Erkennt ob sich ein Spieler Teleportiert", function()
+menu.toggle_loop(detections, "Teleport", {}, "Detects if the player has teleported", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         if not NETWORK.NETWORK_IS_PLAYER_FADING(pid) and ENTITY.IS_ENTITY_VISIBLE(ped) and not PED.IS_PED_DEAD_OR_DYING(ped) then
             local oldpos = players.get_position(pid)
             util.yield(1000)
             local currentpos = players.get_position(pid)
-            for i, interior in ipairs(interior_stuff) do
-                if v3.distance(oldpos, currentpos) > 500 and oldpos.x ~= currentpos.x and oldpos.y ~= currentpos.y and oldpos.z ~= currentpos.z 
-                and get_transition_state(pid) ~= 0 and get_interior_player_is_in(pid) == interior and PLAYER.IS_PLAYER_PLAYING(pid) and players.exists(pid) then
-                    util.toast("[Athego's Script] " .. players.get_name(pid) .. " hat sich Teleportiert")
-                    util.log("[Athego's Script] " .. players.get_name(pid) .. " hat sich Teleportiert")
+            if get_transition_state(pid) ~= 0 then
+                for i, interior in ipairs(interior_stuff) do
+                    if v3.distance(oldpos, currentpos) > 500 and oldpos.x ~= currentpos.x and oldpos.y ~= currentpos.y and oldpos.z ~= currentpos.z then
+                        util.yield(500)
+                        if get_interior_player_is_in(pid) == interior and PLAYER.IS_PLAYER_PLAYING(pid) and players.exists(pid) then
+                            util.toast("[Athego's Script] " .. players.get_name(pid) .. " hat sich Teleportiert")
+                            util.log("[Athego's Script] " .. players.get_name(pid) .. " hat sich Teleportiert")
+                        end
+                    end
                 end
             end
         end
