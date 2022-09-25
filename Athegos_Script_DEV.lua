@@ -5,11 +5,11 @@ util.keep_running()
 util.require_natives("natives-1660775568-uno")
 --util.require_natives("natives-1663599433-uno")
 --util.require_natives(1660775568)
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.85")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.86")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.85
+local localVer = 1.86
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -421,7 +421,7 @@ if online_v > ocoded_for then
 end
 
 --Menü Divider
-menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.85")
+menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.86")
 local self <const> = menu.list(menu.my_root(), "Self", {}, "")
     menu.divider(self, "Athego's Script [DEV] - Self")
 local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
@@ -1217,36 +1217,6 @@ function PlayerlistFeatures(pid)
             else
                 util.toast("[Athego's Script] Fehler beim Laden des Models.")
             end
-        end)
-    end)
-
-    menu.action(crashes, "Lil Yachty", {}, "", function()
-        local mdl = util.joaat("apa_mp_apa_yacht")
-        local user = players.user_ped()
-        BlockSyncs(pid, function()
-            local old_pos = ENTITY.GET_ENTITY_COORDS(user, false)
-            WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user, 0xFBAB5776, 100, false)
-            PLAYER.SET_PLAYER_HAS_RESERVE_PARACHUTE(players.user())
-            PLAYER._SET_PLAYER_RESERVE_PARACHUTE_MODEL_OVERRIDE(players.user(), mdl)
-            util.yield(50)
-            local pos = players.get_position(pid)
-            pos.z += 300
-            TASK.CLEAR_PED_TASKS_IMMEDIATELY(user)
-            ENTITY.SET_ENTITY_COORDS_NO_OFFSET(user, pos, false, false, false)
-            repeat
-                util.yield()
-            until PED.GET_PED_PARACHUTE_STATE(user) == 0
-            PED.FORCE_PED_TO_OPEN_PARACHUTE(user)
-            util.yield(50)
-            TASK.CLEAR_PED_TASKS(user)
-            util.yield(50)
-            PED.FORCE_PED_TO_OPEN_PARACHUTE(user)
-            repeat
-                util.yield()
-            until PED.GET_PED_PARACHUTE_STATE(user) ~= 1
-            pcall(TASK.CLEAR_PED_TASKS_IMMEDIATELY, user)
-            PLAYER._CLEAR_PLAYER_RESERVE_PARACHUTE_MODEL_OVERRIDE(players.user())
-            pcall(ENTITY.SET_ENTITY_COORDS, user, old_pos, false, false)
         end)
     end)
 
