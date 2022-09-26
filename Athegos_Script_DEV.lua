@@ -5,11 +5,11 @@ util.keep_running()
 util.require_natives("natives-1660775568-uno")
 --util.require_natives("natives-1663599433-uno")
 --util.require_natives(1660775568)
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.86")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.87")
 ocoded_for = 1.61
 
 local response = false
-local localVer = 1.86
+local localVer = 1.87
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -120,6 +120,80 @@ local function request_model(hash, timeout)
     until STREAMING.HAS_MODEL_LOADED(hash) or os.time() >= end_time
     return STREAMING.HAS_MODEL_LOADED(hash)
 end
+
+---------------------
+---------------------
+-- FakeMoneyDrop Start
+---------------------
+---------------------
+
+function request_model(model)
+    STREAMING.REQUEST_MODEL(model)
+
+    while not STREAMING.HAS_MODEL_LOADED(model) do
+        util.yield()
+    end
+end
+
+function request_ptfx_asset(asset)
+    STREAMING.REQUEST_NAMED_PTFX_ASSET(asset)
+
+    while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED(asset) do
+        util.yield()
+    end
+end
+
+function get_pickups_in_range(pos, range)
+    pos = pos or v3.new(0, 0, 0)
+    range = range or 16000
+
+    local all_pickups <const> = entities.get_all_pickups_as_pointers()
+    local pickups = {}
+
+    for i, pickup in pairs(all_pickups) do
+        local pickup_pos <const> = entities.get_position(pickup)
+        local is_pickup_in_range <const> = v3.distance(pos, pickup_pos) <= range
+
+        if is_pickup_in_range then
+            table.insert(pickups, pickup)
+        end
+    end
+    return pickups
+end
+
+local fake_pickup_types <const> = {
+    [0] = {
+        "Money Bag",
+        objects = {
+            "p_poly_bag_01_s"
+        }
+    },
+    [1] = {
+        "Action Figures",
+        objects = {
+            "vw_prop_vw_colle_alien",
+            "vw_prop_vw_colle_beast",
+            "vw_prop_vw_colle_imporage",
+            "vw_prop_vw_colle_pogo",
+            "vw_prop_vw_colle_prbubble",
+            "vw_prop_vw_colle_rsrcomm",
+            "vw_prop_vw_colle_rsrgeneric",
+            "vw_prop_vw_colle_sasquatch"
+        }
+    },
+    [2] = {
+        "Snack",
+        objects = {
+            "prop_choc_pq"
+        }
+    },
+}
+
+---------------------
+---------------------
+-- FakeMoneyDrop Ende
+---------------------
+---------------------
 
 local All_business_properties = {
     -- Clubhouses
@@ -253,8 +327,6 @@ local drugged_effects = {
 }
 
 local unreleased_vehicles = {
-    "Kanjosj",
-    "Postlude",
     "Rhinehart",
     "Tenf",
     "Tenf2",
@@ -421,7 +493,7 @@ if online_v > ocoded_for then
 end
 
 --Menü Divider
-menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.86")
+menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.87")
 local self <const> = menu.list(menu.my_root(), "Self", {}, "")
     menu.divider(self, "Athego's Script [DEV] - Self")
 local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
@@ -751,6 +823,81 @@ function PlayerlistFeatures(pid)
             entitycount += 1
         end
         util.toast("[Athego's Script] " .. entitycount .. " gespawnte Käfige wurden gelöscht!")
+    end)
+
+    ---------------------
+	---------------------
+	-- TROLLING/FakeMoneyDrop
+	---------------------
+	---------------------
+
+    local fakemoneydrop = menu.list(trollingOpt, "Fake Money Drop", {}, "")
+    menu.divider(fakemoneydrop, "Athego's Script [DEV] - Fake Money Drop")
+
+    local fake_pickup = {
+        loop = false,
+        type = 0,
+        delay = 100
+    }
+
+    local function spawn_fake_pickup()
+        util.create_thread(function()
+            local objects <const> = fake_pickup_types[fake_pickup.type].objects
+            local pickup_hash <const> = util.joaat(objects[math.random(1, #objects)])
+            local player_pos = players.get_position(pid)
+            local pickup_pos = v3.new(player_pos.x, player_pos.y, player_pos.z + 2.25)
+            local pickup_sound <const> = "Bus_Schedule_Pickup"
+            local pickup_sound_ref <const> = "DLC_PRISON_BREAK_HEIST_SOUNDS"
+
+            request_model(pickup_hash)
+
+            local pickup <const> = entities.create_object(pickup_hash, pickup_pos)
+
+            ENTITY.SET_ENTITY_COLLISION(pickup, false, true)
+            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(
+                pickup, 1, 0, 0, 0,
+                true, false, true, true
+            )
+
+            repeat
+                player_pos = players.get_position(pid)
+                pickup_pos = ENTITY.GET_ENTITY_COORDS(pickup, false)
+                local is_height_reached = pickup_pos.z <= player_pos.z + 1.25
+
+                util.yield(10)
+            until is_height_reached
+
+            AUDIO.PLAY_SOUND_FROM_COORD(
+                -1, pickup_sound,
+                player_pos.x, player_pos.y, player_pos.z,
+                pickup_sound_ref, true, 1, false
+            )
+            entities.delete_by_handle(pickup)
+
+            util.stop_thread()
+        end)
+    end
+
+    menu.action(fakemoneydrop, "Fake drop", {}, "", function()
+        spawn_fake_pickup()
+    end)
+
+    menu.toggle(fakemoneydrop, "Fake drop Loop", {}, "", function(state)
+        fake_pickup.loop = state
+
+        while fake_pickup.loop and players.exists(pid) do
+            spawn_fake_pickup()
+
+            util.yield(fake_pickup.delay)
+        end
+    end)
+
+    menu.list_select(fakemoneydrop, "Fake Objekt", {}, "", fake_pickup_types, 0, function(value)
+        fake_pickup.type = value
+    end)
+
+    menu.slider(fakemoneydrop, "Drop verzögerung", {}, "", 50, 1000, 100, 50, function(value)
+        fake_pickup.delay = value
     end)
 
     ---------------------
