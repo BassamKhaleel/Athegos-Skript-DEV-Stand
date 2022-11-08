@@ -3,13 +3,14 @@ util.keep_running()
 --require("natives-1606100775")
 --util.require_natives(1627063482)
 util.require_natives("natives-1660775568-uno")
+--util.require_natives("1663599433")
 --util.require_natives("natives-1663599433-uno")
 --util.require_natives(1660775568)
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.87")
-ocoded_for = 1.61
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.88")
+ocoded_for = 1.63
 
 local response = false
-local localVer = 1.87
+local localVer = 1.88
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -327,11 +328,7 @@ local drugged_effects = {
 }
 
 local unreleased_vehicles = {
-    "Rhinehart",
-    "Tenf",
-    "Tenf2",
     "Sentinel4",
-    "Weevil2",
 }
 
 local modded_vehicles = {
@@ -407,6 +404,35 @@ local interiors = {
     {"Marijuana Shop", {x=-1170.3048, y=-1570.8246, z=4.663622}},
     {"Strip Club DJ Booth", {x=121.398254, y=-1281.0024, z=29.480522}},
 }
+
+local station_name = {
+    "RADIO_11_TALK_02", -- Blaine County Radio
+    "RADIO_12_REGGAE", -- The Blue Ark
+    "RADIO_13_JAZZ", -- Worldwide FM
+    "RADIO_14_DANCE_02", -- FlyLo FM
+    "RADIO_15_MOTOWN", -- The Lowdown 9.11
+    "RADIO_20_THELAB", -- The Lab
+    "RADIO_16_SILVERLAKE", -- Radio Mirror Park
+    "RADIO_17_FUNK", -- Space 103.2
+    "RADIO_18_90S_ROCK", -- Vinewood Boulevard Radio
+    "RADIO_21_DLC_XM17", -- Blonded Los Santos 97.8 FM
+    "RADIO_22_DLC_BATTLE_MIX1_RADIO", -- Los Santos Underground Radio
+    "RADIO_23_DLC_XM19_RADIO", -- iFruit Radio
+    "RADIO_19_USER", -- Self Radio
+    "RADIO_01_CLASS_ROCK", -- Los Santos Rock Radio
+    "RADIO_02_POP", -- Non-Stop-Pop FM
+    "RADIO_03_HIPHOP_NEW", -- Radio Los Santos
+    "RADIO_04_PUNK", -- Channel X
+    "RADIO_05_TALK_01", -- West Coast Talk Radio
+    "RADIO_06_COUNTRY", -- Rebel Radio
+    "RADIO_07_DANCE_01", -- Soulwax FM
+    "RADIO_08_MEXICAN", -- East Los FM
+    "RADIO_09_HIPHOP_OLD", -- West Coast Classics
+    "RADIO_36_AUDIOPLAYER", -- Media Player
+    "RADIO_35_DLC_HEI4_MLR", -- The Music Locker
+    "RADIO_34_DLC_HEI4_KULT", -- Kult FM
+    "RADIO_27_DLC_PRHEI4", -- Still Slipping Los Santos
+    }
 
 local values = {
     [0] = 0,
@@ -486,14 +512,19 @@ local pickupInterface = memory.read_long(replayInterface + 0x0020)
 ---------------------
 ---------------------
 
+util.show_corner_help("~s~Viel Spaß mit~h~~b~ " .. SCRIPT_FILENAME)
+util.on_stop(function()
+    util.show_corner_help("~s~Bis zum nächsten mal.")
+end)
+
 -- check online version
 online_v = tonumber(NETWORK._GET_ONLINE_VERSION())
 if online_v > ocoded_for then
-    util.toast("[Athego's Script] Dieses Skript ist nicht für die aktuelle GTA:O Version (" .. online_v .. "gemacht, Entwickelt für: " .. ocoded_for .. "). Einige Optionen funktionieren vielleicht nicht, aber die meisten sollten es.")
+    util.toast("[Athego's Script] Dieses Skript ist nicht für die aktuelle GTA:O Version (" .. online_v .. " gemacht, Entwickelt für: " .. ocoded_for .. "). Einige Optionen funktionieren vielleicht nicht, aber die meisten sollten es.")
 end
 
 --Menü Divider
-menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.87")
+menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.88")
 local self <const> = menu.list(menu.my_root(), "Self", {}, "")
     menu.divider(self, "Athego's Script [DEV] - Self")
 local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
@@ -576,7 +607,7 @@ function PlayerlistFeatures(pid)
             distance = 3
         end
 
-        local vehicle1 = entities.create_vehicle(vehicle, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid), offset, distance, height), ENTITY.GET_ENTITY_HEADING(ped))
+        local vehicle1 = entities.create_vehicle(vehicle, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ped, offset, distance, height), ENTITY.GET_ENTITY_HEADING(ped))
         local vehicle2 = entities.create_vehicle(vehicle, pos, 0)
         local vehicle3 = entities.create_vehicle(vehicle, pos, 0)
         local vehicle4 = entities.create_vehicle(vehicle, pos, 0)
@@ -797,6 +828,17 @@ function PlayerlistFeatures(pid)
         ENTITY.FREEZE_ENTITY_POSITION(container, true)
     end)
 
+    menu.action(cage, "Fahrzeugkäfig", {}, "", function()
+        local container_hash = util.joaat("boxville3")
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        request_model(container_hash)
+        local container = entities.create_vehicle(container_hash, ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ped, 0.0, 2.0, 0.0), ENTITY.GET_ENTITY_HEADING(ped))
+        spawned_objects[#spawned_objects + 1] = container
+        ENTITY.SET_ENTITY_VISIBLE(container, false)
+        ENTITY.FREEZE_ENTITY_POSITION(container, true)
+    end)
+
     menu.action(cage, "Gas Käfig", {}, "", function()
         local gas_cage_hash = util.joaat("prop_gascage01")
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -823,6 +865,39 @@ function PlayerlistFeatures(pid)
             entitycount += 1
         end
         util.toast("[Athego's Script] " .. entitycount .. " gespawnte Käfige wurden gelöscht!")
+    end)
+
+    ---------------------
+	---------------------
+	-- TROLLING/Radio
+	---------------------
+	---------------------
+
+    local radio_station = menu.list(trollingOpt, "Radiosender wechseln")
+    local station = "RADIO_08_MEXICAN"
+
+    menu.list_select(radio_station, "Radiosender", {}, "", station_name, 1, function(index, value)
+        station = value
+    end)
+
+    menu.action(radio_station, "Ändern den Radiosender des Spielers", {""}, "", function()
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = players.get_position(players.user())
+        local player_veh = PED.GET_VEHICLE_PED_IS_IN(ped)
+
+        if not PED.IS_PED_IN_VEHICLE(ped, player_veh, false) then 
+            util.toast("[Athego's Script] Spieler ist in keinem Fahrzeug!")
+        return end
+
+        if PED.IS_PED_IN_ANY_VEHICLE(ped, false) then 
+            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(player_veh)
+            ENTITY.SET_ENTITY_VISIBLE(players.user_ped(), false)
+            menu.trigger_commands("tpveh" .. players.get_name(pid))
+            util.yield(250)
+            AUDIO.SET_VEH_RADIO_STATION(player_veh, station)
+            util.yield(750)
+        end
+        ENTITY.SET_ENTITY_COORDS_NO_OFFSET(players.user_ped(), pos, false, false, false)
     end)
 
     ---------------------
@@ -941,7 +1016,7 @@ function PlayerlistFeatures(pid)
         object_hash = util.joaat(object_stuff.objects[index])
     end)
 
-    menu.slider(glitch_player_list, "Spawn Delay [Glitch Player]", {}, "", 0, 3000, 50, 10, function(amount)
+    menu.slider(glitch_player_list, "Spawn Delay", {}, "", 100, 3000, 100, 10, function(amount)
         delay = amount
     end)
 
@@ -1386,61 +1461,6 @@ function PlayerlistFeatures(pid)
         util.trigger_script_event(1 << pid, {495813132, pid,  0, 1, 23135423, 3, 3, 4, 827870001, 5, 2022580431, 6, -918761645, 7, 1754244778, 8, 827870001, 9, 17})
     end)
 
-    local krossekrabbe = menu.list(crashes, "Das Krosse Krabbe Spezial", {}, "")
-    menu.divider(krossekrabbe, "Athego's Script [DEV] - Das Krosse Krabbe Spezial")
-
-    local peds = 5
-    menu.slider(krossekrabbe, "Anzahl der Peds", {}, "", 1, 10, 5, 1, function(amount)
-        peds = amount
-    end)
-
-    local crash_ents = {}
-    local crash_toggle = false
-    menu.toggle(krossekrabbe, "Mach das Lustige", {}, "", function(val)
-        crash_toggle = val
-        BlockSyncs(pid, function()
-            if val then
-                local number_of_peds = peds
-                local ped_mdl = util.joaat("ig_siemonyetarian")
-                local ply_ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-                local ped_pos = players.get_position(pid)
-                ped_pos.z += 3
-                request_model(ped_mdl)
-                for i = 1, number_of_peds do
-                    local ped = entities.create_ped(26, ped_mdl, ped_pos, 0)
-                    crash_ents[i] = ped
-                    PED.SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true)
-                    TASK.TASK_SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true)
-                    ENTITY.SET_ENTITY_INVINCIBLE(ped, true)
-                    ENTITY.SET_ENTITY_VISIBLE(ped, false)
-                end
-                repeat
-                    for k, ped in crash_ents do
-                        TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
-                        TASK.TASK_START_SCENARIO_IN_PLACE(ped, "PROP_HUMAN_BBQ", 0, false)
-                    end
-                    for k, v in entities.get_all_objects_as_pointers() do
-                        if entities.get_model_hash(v) == util.joaat("prop_fish_slice_01") then
-                            entities.delete_by_pointer(v)
-                        end
-                    end
-                    util.yield_once()
-                    util.yield_once()
-                until not (crash_toggle and players.exists(pid))
-                crash_toggle = false
-                for k, obj in crash_ents do
-                    entities.delete_by_handle(obj)
-                end
-                crash_ents = {}
-            else
-                for k, obj in crash_ents do
-                    entities.delete_by_handle(obj)
-                end
-                crash_ents = {}
-            end
-        end)
-    end)
-
     menu.action(crashes, "Fragment Crash", {""}, "", function()
         BlockSyncs(pid, function()
             local object = entities.create_object(util.joaat("prop_fragtest_cnst_04"), ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)))
@@ -1499,8 +1519,12 @@ end)
 ---------------------
 ---------------------
 
-local info_toggles = menu.list(overlay, 'Info Overlay Toggles', {}, '')
-local info_pos = menu.list(overlay, 'Info Overlay Position', {}, '')
+local info_overlay_list = menu.list(overlay, 'Info Overlay', {}, '')
+local info_toggles = menu.list(info_overlay_list, 'Info Overlay Toggles', {}, '')
+local info_pos = menu.list(info_overlay_list, 'Info Overlay Position', {}, '')
+local player_overlay = menu.list(overlay, 'Spieler Overlay', {}, '')
+local player_pos = menu.list(player_overlay, 'Spieler Overlay Position', {}, '')
+local overlay_farbe = menu.list(overlay, 'Overlay Farbe', {}, '')
 
 --memory paths
 local replayInterface = memory.read_long(memory.rip(memory.scan("48 8D 0D ? ? ? ? 48 8B D7 E8 ? ? ? ? 48 8D 0D ? ? ? ? 8A D8 E8 ? ? ? ? 84 DB 75 13 48 8D 0D") + 3))
@@ -1510,6 +1534,7 @@ local objectInterface = memory.read_long(replayInterface + 0x0028)
 local pickupInterface = memory.read_long(replayInterface + 0x0020)
 
 --locals
+local session_type_toggle = false
 local session_host_toggle = false
 local session_script_host_toggle = false
 local players_toggle = false
@@ -1520,9 +1545,6 @@ local vehicles_toggle = false
 local objects_toggle = false
 local pickups_toggle = false
 local white_colour = {r = 1.0, g = 1.0, b = 1.0, a = 1.0}
-
-
-local info_colour = menu.list(overlay, 'Overlay Farbe', {}, '')
 
 UI = {}
 
@@ -1555,7 +1577,7 @@ UI.new = function()
 
     local highlight_colour = {r=1,g=0,b=0,a=1}
     menu.rainbow(
-        menu.colour(info_colour, "Overlay Farbe", {"overlayfarbe"}, "", highlight_colour, true, function(val)
+        menu.colour(overlay_farbe, "Overlay Farbe", {"overlayfarbe"}, "", highlight_colour, true, function(val)
             highlight_colour = val
         end)
     )
@@ -2264,6 +2286,10 @@ local regionDetect = {
 ---------------------
 
 --toggles
+menu.toggle(info_toggles, "Session Type Toggle", {"SessionTypeToggle"}, "", function(on)
+    session_type_toggle = on
+    util.yield()
+end)
 menu.toggle(info_toggles, "Session Host Toggle", {"SessionHostToggle"}, "", function(on)
     session_host_toggle = on
     util.yield()
@@ -2321,31 +2347,42 @@ end)
 local x = 0.17 --posX
 local y = 0.705 --posY
 
+-- default position
+local x2 = 0 --posX
+local y2 = 0 --posY
+
 menu.slider(info_pos, "X Achse", {"xcoord"}, "Bewege die X Achse des Info Overlays.", -100, 100, 17, 1, function(datax) --after help text : 0 is min, 100 is max, 50 is default and 1 is step
     x=datax/100 -- put the value at 0.xx (ex : 50/100 = 0.5 default position)
 end)
-menu.slider(info_pos, "Y Achse", {"ycoord"}, "Bewege die Y Achse des Info Overlays", -100, 100, 70, 1, function(datay) --after help text : 0 is min, 100 is max, 50 is default and 1 is step
+menu.slider(info_pos, "Y Achse", {"ycoord"}, "Bewege die Y Achse des Info Overlays.", -100, 100, 70, 1, function(datay) --after help text : 0 is min, 100 is max, 50 is default and 1 is step
     y=datay/100 -- put the value at 0.xx (ex : 50/100 = 0.5 default position)
 end)
 
-menu.toggle(overlay, "Player Overlay", {"PlayerOverlay"}, "Ein Schönes Player Overlay",
+menu.slider(player_pos, "Move X", {"xcoord2"}, "Bewege die X Achse des Spieler Overlays.", -100, 100, 0, 1, function(datax2) --after help text : 0 is min, 100 is max, 50 is default and 1 is step
+    x2=datax2/100 -- put the value at 0.xx (ex : 50/100 = 0.5 default position)
+end)
+menu.slider(player_pos, "Move Y", {"ycoord2"}, "Bewege die Y Achse des Spieler Overlays.", -100, 100, 0, 1, function(datay2) --after help text : 0 is min, 100 is max, 50 is default and 1 is step
+    y2=datay2/100 -- put the value at 0.xx (ex : 50/100 = 0.5 default position)
+end)
+
+menu.toggle(player_overlay, "Spieler Overlay", {"PlayerOverlay"}, "Ein Schönes Player Overlay",
     function(state)
         UItoggle = state
         while UItoggle do
             local player = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(players.user())
-            myUI.begin("      Spieler      ", 0.02, 0.02, "kpjbgkzjsdbg")
+            myUI.begin("      Spieler      ", x2 + 0.02, y2 + 0.02, "kpjbgkzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
                 myUI.label(players.get_name(pid),"")
             end
             myUI.finish()
-            myUI.begin("Level", 0.118, 0.02, "kpj2bdg2kzjsdbg")
+            myUI.begin("Level", x2 +  0.118, y2 +  0.02, "kpj2bdg2kzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
                 myUI.label(players.get_rank(pid),"")
             end
             myUI.finish()
-            myUI.begin("Modder", 0.169, 0.02, "kpj2bdgd2kzjsdbg")
+            myUI.begin("Modder", x2 +  0.169, y2 +  0.02, "kpj2bdgd2kzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
                 if players.is_marked_as_modder(pid) then
@@ -2355,7 +2392,7 @@ menu.toggle(overlay, "Player Overlay", {"PlayerOverlay"}, "Ein Schönes Player O
                 end
             end
             myUI.finish()
-            myUI.begin("Attacker", 0.231, 0.02, "kpjbdg2kzjsdbg")
+            myUI.begin("Attacker", x2 +  0.231, y2 +  0.02, "kpjbdg2kzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
                 if players.is_marked_as_attacker(pid) then
@@ -2365,13 +2402,13 @@ menu.toggle(overlay, "Player Overlay", {"PlayerOverlay"}, "Ein Schönes Player O
                     end
             end
             myUI.finish()
-            myUI.begin(" Sprache ", 0.299, 0.02, "kpjbdgkzjsdbg")
+            myUI.begin(" Sprache ", x2 +  0.299, y2 +  0.02, "kpjbdgkzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
                myUI.label(regionDetect[players.get_language(pid)].lang,"")
             end
             myUI.finish()
-            myUI.begin("Eingabe", 0.374, 0.02, "kpj2bdgd2hkzjsdbg")
+            myUI.begin("Eingabe", x2 +  0.374, y2 +  0.02, "kpj2bdgd2hkzjsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
             if players.is_using_controller(pid) then
@@ -2381,7 +2418,7 @@ menu.toggle(overlay, "Player Overlay", {"PlayerOverlay"}, "Ein Schönes Player O
 				end
             end
             myUI.finish()
-            myUI.begin("         Boss        ", 0.435, 0.02, "kpfj3bdgd2hkzsdbg")
+            myUI.begin("         Boss        ", x2 +  0.435, y2 +  0.02, "kpfj3bdgd2hkzsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
                 if players.get_boss(pid) == -1 then
@@ -2391,7 +2428,7 @@ menu.toggle(overlay, "Player Overlay", {"PlayerOverlay"}, "Ein Schönes Player O
 				end
             end
             myUI.finish()
-            myUI.begin("Fahrzeug", 0.535, 0.02, "kpfj2bdgd2hkzsdbg")
+            myUI.begin("Fahrzeug", x2 +  0.535, y2 +  0.02, "kpfj2bdgd2hkzsdbg")
             local player_table = players.list()
             for i, pid in pairs(player_table) do
 				playerinfo1 = players.get_vehicle_model(pid)
@@ -2420,7 +2457,24 @@ menu.toggle(overlay, "Player Overlay", {"PlayerOverlay"}, "Ein Schönes Player O
 ---------------------
 ---------------------
 
-menu.toggle(overlay, "Info Overlay", {"InfoOverlay"}, "Info Overlay in einer schönen Box", function(state)
+local function SessionType()
+    if util.is_session_started() then
+        if NETWORK.NETWORK_SESSION_IS_PRIVATE() then
+            return "Nur Einladung"
+        elseif NETWORK.NETWORK_SESSION_IS_CLOSED_CREW() then
+            return "Nur Crew"
+        elseif NETWORK.NETWORK_SESSION_IS_CLOSED_FRIENDS() then
+            return "Nur Freunde"
+        elseif NETWORK.NETWORK_SESSION_IS_SOLO() then
+            return "Solo"
+        else
+        return "Öffentliche Sitzung"
+        end
+    end
+return "Singleplayer"
+end
+
+menu.toggle(info_overlay_list, "Info Overlay", {"InfoOverlay"}, "Info Overlay in einer schönen Box", function(state)
     UItoggle2 = state
     while UItoggle2 do
         --start the gui
@@ -2450,6 +2504,11 @@ menu.toggle(overlay, "Info Overlay", {"InfoOverlay"}, "Info Overlay in einer sch
         local strangercount = 0
         for i, pid in pairs(players.list(false, false, true)) do
             strangercount = strangercount + 1
+        end
+
+        --session type toggle
+        if session_type_toggle then
+            myUI.label("Session Type: ", SessionType(), white_colour)
         end
 
         --session host row
@@ -2638,7 +2697,7 @@ menu.toggle_loop(detections, "Super Drive", {}, "Erkennt ob jemand Super Drive b
         local vehicle = PED.GET_VEHICLE_PED_IS_USING(ped)
         local veh_speed = (ENTITY.GET_ENTITY_SPEED(vehicle)* 2.236936)
         local class = VEHICLE.GET_VEHICLE_CLASS(vehicle)
-        if class ~= 15 and class ~= 16 and veh_speed >= 180 and VEHICLE.GET_PED_IN_VEHICLE_SEAT(vehicle, -1) and players.get_vehicle_model(pid) ~= util.joaat("oppressor") then
+        if class ~= 15 and class ~= 16 and veh_speed >= 180 and VEHICLE.GET_PED_IN_VEHICLE_SEAT(vehicle, -1) and (players.get_vehicle_model(pid) ~= util.joaat("oppressor") or players.get_vehicle_model(pid) ~= util.joaat("oppressor2")) then
             util.toast("[Athego's Script] " .. players.get_name(pid) .. " benutzt Super Drive")
             util.log("[Athego's Script] " .. players.get_name(pid) .. " benutzt Super Drive")
             break
@@ -2656,28 +2715,6 @@ menu.toggle_loop(detections, "Zuschauen", {}, "Erkennt ob dir jemand zuguckt!", 
                     util.toast("[Athego's Script] " .. players.get_name(pid) .. " schaut dir zu!")
                     util.log("[Athego's Script] " .. players.get_name(pid) .. " schaut dir zu!")
                     break
-                end
-            end
-        end
-    end
-end)
-
-menu.toggle_loop(detections, "Teleport", {}, "Detects if the player has teleported", function()
-    for _, pid in ipairs(players.list(false, true, true)) do
-        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        if not NETWORK.NETWORK_IS_PLAYER_FADING(pid) and ENTITY.IS_ENTITY_VISIBLE(ped) and not PED.IS_PED_DEAD_OR_DYING(ped) then
-            local oldpos = players.get_position(pid)
-            util.yield(1000)
-            local currentpos = players.get_position(pid)
-            if get_transition_state(pid) ~= 0 then
-                for i, interior in ipairs(interior_stuff) do
-                    if v3.distance(oldpos, currentpos) > 500 and oldpos.x ~= currentpos.x and oldpos.y ~= currentpos.y and oldpos.z ~= currentpos.z then
-                        util.yield(500)
-                        if get_interior_player_is_in(pid) == interior and PLAYER.IS_PLAYER_PLAYING(pid) and players.exists(pid) then
-                            util.toast("[Athego's Script] " .. players.get_name(pid) .. " hat sich Teleportiert")
-                            util.log("[Athego's Script] " .. players.get_name(pid) .. " hat sich Teleportiert")
-                        end
-                    end
                 end
             end
         end
@@ -2707,10 +2744,6 @@ end, true)
 ---------------------
 
 local unlocks = menu.list(self, "Unlocks", {}, "")
-
-menu.action(unlocks, "Unlock M16", {""}, "", function()
-    memory.write_int(memory.script_global(262145 + 32775), 1)
-end)
 
 local collectibles = menu.list(unlocks, "Collectibles", {}, "")
 menu.click_slider(collectibles, "Movie Props", {""}, "", 0, 9, 0, 1, function(i)
