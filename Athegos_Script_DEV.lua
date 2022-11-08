@@ -6,11 +6,11 @@ util.require_natives("natives-1660775568-uno")
 --util.require_natives("1663599433")
 --util.require_natives("natives-1663599433-uno")
 --util.require_natives(1660775568)
-util.toast("Athego's Script erfolgreich geladen! DEV Version 1.88")
+util.toast("Athego's Script erfolgreich geladen! DEV Version 1.89")
 ocoded_for = 1.63
 
 local response = false
-local localVer = 1.88
+local localVer = 1.89
 async_http.init("raw.githubusercontent.com", "/BassamKhaleel/Athegos-Skript-DEV-Stand/main/AthegosSkriptVersion", function(output)
     currentVer = tonumber(output)
     response = true
@@ -524,7 +524,7 @@ if online_v > ocoded_for then
 end
 
 --Menü Divider
-menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.88")
+menu.divider(menu.my_root(), "Athego's Script [DEV] - 1.89")
 local self <const> = menu.list(menu.my_root(), "Self", {}, "")
     menu.divider(self, "Athego's Script [DEV] - Self")
 local customloadoutOpt <const> = menu.list(menu.my_root(), "Custom Loadout", {}, "") --Erstellt die Liste
@@ -796,27 +796,6 @@ function PlayerlistFeatures(pid)
         end
     end)
 
-    menu.action(cage, "Michael Jackson Käfig", {}, "", function(cl)
-        local number_of_cages = 6
-        local coffin_hash = util.joaat("prop_coffin_02b")
-        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        local pos = ENTITY.GET_ENTITY_COORDS(ped)
-        request_model(coffin_hash)
-        local temp_v3 = v3.new(0, 0, 0)
-        for i = 1, number_of_cages do
-            local angle = (i / number_of_cages) * 360
-            temp_v3.z = angle
-            local obj_pos = temp_v3:toDir()
-            obj_pos:mul(0.8)
-            obj_pos:add(pos)
-            obj_pos.z += 0.1
-           local coffin = entities.create_object(coffin_hash, obj_pos)
-           spawned_objects[#spawned_objects + 1] = coffin
-           ENTITY.SET_ENTITY_ROTATION(coffin, 90.0, 0.0, angle,  2, 0)
-           ENTITY.FREEZE_ENTITY_POSITION(coffin, true)
-        end
-    end)
-
     menu.action(cage, "Schiffcontainer", {}, "", function()
         local container_hash = util.joaat("prop_container_ld_pu")
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -838,22 +817,6 @@ function PlayerlistFeatures(pid)
         ENTITY.SET_ENTITY_VISIBLE(container, false)
         ENTITY.FREEZE_ENTITY_POSITION(container, true)
     end)
-
-    menu.action(cage, "Gas Käfig", {}, "", function()
-        local gas_cage_hash = util.joaat("prop_gascage01")
-        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        local pos = ENTITY.GET_ENTITY_COORDS(ped)
-        request_model(gas_cage_hash)
-        pos.z -= 1
-        local gas_cage = entities.create_object(gas_cage_hash, pos, 0)
-        pos.z += 1
-        local gas_cage2 = entities.create_object(gas_cage_hash, pos, 0)
-        spawned_objects[#spawned_objects + 1] = gas_cage
-        spawned_objects[#spawned_objects + 1] = gas_cage2
-        ENTITY.FREEZE_ENTITY_POSITION(gas_cage, true)
-        ENTITY.FREEZE_ENTITY_POSITION(gas_cage2, true)
-    end)
-
 
     menu.action(cage, "Lösche gespawnte Käfige", {"clearcages"}, "", function()
         local entitycount = 0
